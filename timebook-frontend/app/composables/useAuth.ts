@@ -73,6 +73,37 @@ export const useAuth = () => {
         }
     }
 
+    // 認証付きAPIリクエスト
+    const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+        // トークンがない場合、localStorageから取得を試みる
+        let authToken = token.value
+        if (!authToken && process.client) {
+            authToken = localStorage.getItem('auth_token')
+            if (authToken) {
+                token.value = authToken
+            }
+        }
+
+        if (!authToken) {
+            throw new Error('認証トークンがありません')
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
+                ...options.headers,
+            },
+        })
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        return await response.json()
+    }
+
     // ログイン状態をチェック
     const isAuthenticated = computed(() => !!token.value)
 
@@ -82,6 +113,7 @@ export const useAuth = () => {
         login,
         logout,
         restoreAuth,
+        fetchWithAuth,
         isAuthenticated,
     }
 }

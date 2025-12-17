@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Reservation;
+use App\Models\LessonSlot;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -18,12 +19,25 @@ class DashboardController extends Controller
         $teacherId = $request->user()->id;
         $today = Carbon::today();
 
-        // 今日の予約を取得
-        $reservations = Reservation::where('teacher_id', $teacherId)
-            ->whereDate('lesson_date', $today)
-            ->with(['student', 'lessonSlot'])
-            ->orderBy('lesson_start_time')
-            ->get();
+        // 今日の予約を取得（lesson_slotsを通じて）
+        $reservations = Reservation::whereHas('lessonSlot', function ($query) use ($teacherId, $today) {
+            $query->where('teacher_id', $teacherId)
+                ->whereDate('date', $today);
+        })
+        ->with('lessonSlot')
+        ->get()
+        ->map(function ($reservation) {
+            return [
+                'id' => $reservation->id,
+                'student_name' => $reservation->student_name,
+                'student_email' => $reservation->student_email,
+                'lesson_start_time' => $reservation->lessonSlot->start_time,
+                'lesson_end_time' => $reservation->lessonSlot->end_time,
+                'lesson_slot' => [
+                    'duration_minutes' => $reservation->lessonSlot->duration,
+                ],
+            ];
+        });
 
         return response()->json([
             'success' => true,
@@ -33,6 +47,8 @@ class DashboardController extends Controller
                 'reservations' => $reservations,
             ],
         ]);
+
+
     }
 
     /**
@@ -48,16 +64,16 @@ class DashboardController extends Controller
         $endOfWeek = Carbon::now()->endOfWeek();
 
         // 今週の予約を取得
-        $reservations = Reservation::where('teacher_id', $teacherId)
-            ->whereBetween('lesson_date', [$startOfWeek, $endOfWeek])
-            ->with(['student', 'lessonSlot'])
-            ->orderBy('lesson_date')
-            ->orderBy('lesson_start_time')
-            ->get();
+        $reservations = Reservation::whereHas('lessonSlot', function ($query) use ($teacherId, $startOfWeek, $endOfWeek) {
+            $query->where('teacher_id', $teacherId)
+                ->whereBetween('date', [$startOfWeek, $endOfWeek]);
+        })
+        ->with('lessonSlot')
+        ->get();
 
         // 日付でグループ化
         $groupedReservations = $reservations->groupBy(function ($reservation) {
-            return Carbon::parse($reservation->lesson_date)->format('Y-m-d');
+            return Carbon::parse($reservation->lessonSlot->date)->format('Y-m-d');
         });
 
         return response()->json([
@@ -69,6 +85,7 @@ class DashboardController extends Controller
                 'reservations_by_date' => $groupedReservations,
             ],
         ]);
+
     }
 
     /**
@@ -79,22 +96,29 @@ class DashboardController extends Controller
     {
         $teacherId = $request->user()->id;
 
-        // 総予約数（キャンセル含む）
-        $totalReservations = Reservation::where('teacher_id', $teacherId)->count();
+        // 総予約数
+        $totalReservations = Reservation::whereHas('lessonSlot', function ($query) use ($teacherId) {
+            $query->where('teacher_id', $teacherId);
+        })->count();
+
 
         // 今月の予約数（キャンセル含まない）
         $startOfMonth = Carbon::now()->startOfMonth();
         $endOfMonth = Carbon::now()->endOfMonth();
 
-        $thisMonthReservations = Reservation::where('teacher_id', $teacherId)
-            ->whereBetween('lesson_date', [$startOfMonth, $endOfMonth])
-            ->whereNull('canceled_at')
-            ->count();
+        $thisMonthReservations = Reservation::whereHas('lessonSlot', function ($query) use ($teacherId, $startOfMonth, $endOfMonth) {
+            $query->where('teacher_id', $teacherId)
+                ->whereBetween('date', [$startOfMonth, $endOfMonth]);
+        })
+        ->where('status', '!=', 'canceled')
+        ->count();
 
-        // キャンセル率の計算
-        $canceledReservations = Reservation::where('teacher_id', $teacherId)
-            ->whereNotNull('canceled_at')
-            ->count();
+        // キャンセル数
+        $canceledReservations = Reservation::whereHas('lessonSlot', function ($query) use ($teacherId) {
+            $query->where('teacher_id', $teacherId);
+        })
+        ->where('status', 'canceled')
+        ->count();
 
         $cancelRate = $totalReservations > 0
             ? round(($canceledReservations / $totalReservations) * 100, 1)
@@ -106,9 +130,11 @@ class DashboardController extends Controller
                 'total_reservations' => $totalReservations,
                 'this_month_reservations' => $thisMonthReservations,
                 'canceled_reservations' => $canceledReservations,
-                'cancel_rate' => $cancelRate,  // パーセンテージ
+                'cancel_rate' => $cancelRate,
             ],
         ]);
+
+
     }
 
     /**
@@ -121,21 +147,24 @@ class DashboardController extends Controller
         $now = Carbon::now();
 
         // 現在時刻以降の最も近い予約を取得
-        $nextReservation = Reservation::where('teacher_id', $teacherId)
-            ->whereNull('canceled_at')
-            ->where(function ($query) use ($now) {
-                // 今日以降の予約
-                $query->where('lesson_date', '>', $now->format('Y-m-d'))
-                    // または今日で、まだ開始していない予約
-                    ->orWhere(function ($q) use ($now) {
-                        $q->where('lesson_date', $now->format('Y-m-d'))
-                        ->where('lesson_start_time', '>', $now->format('H:i:s'));
-                    });
-            })
-            ->with(['student', 'lessonSlot'])
-            ->orderBy('lesson_date')
-            ->orderBy('lesson_start_time')
-            ->first();
+        $nextReservation = Reservation::whereHas('lessonSlot', function ($query) use ($teacherId, $now) {
+            $query->where('teacher_id', $teacherId)
+                ->where(function ($q) use ($now) {
+                    $q->where('date', '>', $now->format('Y-m-d'))
+                        ->orWhere(function ($q2) use ($now) {
+                            $q2->where('date', $now->format('Y-m-d'))
+                            ->where('start_time', '>', $now->format('H:i:s'));
+                        });
+                });
+        })
+        ->where('status', '!=', 'canceled')
+        ->with('lessonSlot')
+        ->orderBy(function ($query) {
+            return $query->from('lesson_slots')
+                        ->whereColumn('lesson_slots.id', 'reservations.lesson_slot_id')
+                        ->select('date');
+        })
+        ->first();
 
         return response()->json([
             'success' => true,
@@ -161,20 +190,20 @@ class DashboardController extends Controller
         $endOfMonth = Carbon::create($year, $month, 1)->endOfMonth();
 
         // 指定月の予約を取得
-        $reservations = Reservation::where('teacher_id', $teacherId)
-            ->whereBetween('lesson_date', [$startOfMonth, $endOfMonth])
-            ->with(['student', 'lessonSlot'])
-            ->orderBy('lesson_date')
-            ->orderBy('lesson_start_time')
-            ->get();
+        $reservations = Reservation::whereHas('lessonSlot', function ($query) use ($teacherId, $startOfMonth, $endOfMonth) {
+            $query->where('teacher_id', $teacherId)
+                ->whereBetween('date', [$startOfMonth, $endOfMonth]);
+        })
+        ->with('lessonSlot')
+        ->get();
 
         // 日付ごとの予約数を集計
         $reservationsByDate = $reservations->groupBy(function ($reservation) {
-            return Carbon::parse($reservation->lesson_date)->format('Y-m-d');
+            return Carbon::parse($reservation->lessonSlot->date)->format('Y-m-d');
         })->map(function ($dateReservations) {
             return [
                 'count' => $dateReservations->count(),
-                'canceled_count' => $dateReservations->whereNotNull('canceled_at')->count(),
+                'canceled_count' => $dateReservations->where('status', 'canceled')->count(),
                 'reservations' => $dateReservations,
             ];
         });
