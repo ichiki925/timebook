@@ -193,6 +193,9 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+    middleware: 'auth'
+})
 const { fetchWithAuth } = useAuth()
 
 // データの状態管理

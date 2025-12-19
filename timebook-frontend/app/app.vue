@@ -1,6 +1,13 @@
 <template>
   <div>
-    <AppHeader v-if="!isLoginPage" />
+    <!-- ログインページ以外でヘッダーを表示 -->
+    <template v-if="!isLoginPage">
+      <!-- 管理者ページの場合は AdminHeader -->
+      <AdminHeader v-if="isAdminPage" />
+      <!-- それ以外は PublicHeader -->
+      <PublicHeader v-else />
+    </template>
+
     <main class="main-content">
       <NuxtPage />
     </main>
@@ -8,11 +15,19 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import PublicHeader from '~/components/PublicHeader.vue'
+import AdminHeader from '~/components/AdminHeader.vue'
+
 const route = useRoute()
 const { restoreAuth } = useAuth()
 
 // ログインページかどうかを判定
 const isLoginPage = computed(() => route.path === '/login')
+
+// 管理者ページかどうかを判定（新しく追加）
+const isAdminPage = computed(() => route.path.startsWith('/admin'))
 
 onMounted(() => {
   restoreAuth()
@@ -27,7 +42,7 @@ onMounted(() => {
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background: #f5f7fa;
   color: #333;
 }
