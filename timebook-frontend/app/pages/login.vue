@@ -1,50 +1,52 @@
 <template>
-    <div class="login-container">
-        <div class="login-card">
-            <div class="login-header">
-                <h1>🎹 TimeBook</h1>
-                <p>管理画面ログイン</p>
-            </div>
-
-            <form @submit.prevent="handleLogin" class="login-form">
-                <div class="form-group">
-                    <label for="email">メールアドレス</label>
-                    <input
-                        id="email"
-                        v-model="email"
-                        type="email"
-                        required
-                        placeholder="test@example.com"
-                        class="form-input"
-                    />
+    <ClientOnly>
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <h1>🎹 TimeBook</h1>
+                    <p>管理画面ログイン</p>
                 </div>
 
-                <div class="form-group">
-                    <label for="password">パスワード</label>
-                    <input
-                        id="password"
-                        v-model="password"
-                        type="password"
-                        required
-                        placeholder="パスワードを入力"
-                        class="form-input"
-                    />
+                <form @submit.prevent="handleLogin" class="login-form">
+                    <div class="form-group">
+                        <label for="email">メールアドレス</label>
+                        <input
+                            id="email"
+                            v-model="email"
+                            type="email"
+                            required
+                            placeholder="test@example.com"
+                            class="form-input"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">パスワード</label>
+                        <input
+                            id="password"
+                            v-model="password"
+                            type="password"
+                            required
+                            placeholder="パスワードを入力"
+                            class="form-input"
+                        />
+                    </div>
+
+                    <div v-if="errorMessage" class="error-message">
+                        {{ errorMessage }}
+                    </div>
+
+                    <button type="submit" class="login-button" :disabled="loading">
+                        {{ loading ? 'ログイン中...' : 'ログイン' }}
+                    </button>
+                </form>
+
+                <div class="login-footer">
+                    <NuxtLink to="/" class="back-link">← トップページに戻る</NuxtLink>
                 </div>
-
-                <div v-if="errorMessage" class="error-message">
-                    {{ errorMessage }}
-                </div>
-
-                <button type="submit" class="login-button" :disabled="loading">
-                    {{ loading ? 'ログイン中...' : 'ログイン' }}
-                </button>
-            </form>
-
-            <div class="login-footer">
-                <NuxtLink to="/" class="back-link">← トップページに戻る</NuxtLink>
             </div>
         </div>
-    </div>
+    </ClientOnly>
 </template>
 
 <script setup lang="ts">
