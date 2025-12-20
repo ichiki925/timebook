@@ -2,9 +2,14 @@
     <div class="container">
         <div class="header">
             <h1 class="title">レッスン枠管理</h1>
-            <button class="create-button" @click="showCreateModal = true">
-                ➕ 新規作成
-            </button>
+            <div class="button-group">
+                <button class="create-button" @click="showCreateModal = true">
+                    ➕ 新規作成
+                </button>
+                <button class="bulk-create-button" @click="showBulkCreateModal = true">
+                    📅 一括作成
+                </button>
+            </div>
         </div>
 
         <!-- ローディング中 -->
@@ -179,6 +184,104 @@
                 </div>
             </div>
         </div>
+        <!-- 一括作成モーダル -->
+        <div v-if="showBulkCreateModal" class="modal-overlay" @click="closeBulkCreateModal">
+            <div class="modal-content bulk-modal" @click.stop>
+                <div class="modal-header">
+                    <h2>レッスン枠を一括作成</h2>
+                    <button class="close-button" @click="closeBulkCreateModal">×</button>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="bulkCreateSlots">
+                        <!-- 期間設定 -->
+                        <div class="form-section">
+                            <h3 class="section-title">📅 期間設定</h3>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>開始日 <span class="required">*</span></label>
+                                    <input
+                                        v-model="bulkCreateForm.start_date"
+                                        type="date"
+                                        :min="today"
+                                        required
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label>終了日 <span class="required">*</span></label>
+                                    <input
+                                        v-model="bulkCreateForm.end_date"
+                                        type="date"
+                                        :min="bulkCreateForm.start_date"
+                                        required
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 曜日選択 -->
+                        <div class="form-section">
+                            <h3 class="section-title">📆 曜日選択</h3>
+                            <div class="weekdays-grid">
+                                <label v-for="(day, index) in ['日', '月', '火', '水', '木', '金', '土']" 
+                                        :key="index"
+                                        class="weekday-checkbox">
+                                    <input
+                                        type="checkbox"
+                                        :value="index"
+                                        v-model="bulkCreateForm.weekdays"
+                                    >
+                                    <span>{{ day }}</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 時間設定 -->
+                        <div class="form-section">
+                            <h3 class="section-title">🕐 時間設定</h3>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>開始時刻 <span class="required">*</span></label>
+                                    <input
+                                        v-model="bulkCreateForm.time_start"
+                                        type="time"
+                                        required
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label>終了時刻 <span class="required">*</span></label>
+                                    <input
+                                        v-model="bulkCreateForm.time_end"
+                                        type="time"
+                                        required
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>レッスン時間 <span class="required">*</span></label>
+                                <select v-model="bulkCreateForm.duration" required>
+                                    <option value="30">30分</option>
+                                    <option value="60">60分</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="cancel-button" @click="closeBulkCreateModal">
+                                キャンセル
+                            </button>
+                            <button type="submit" class="submit-button" :disabled="submitting">
+                                {{ submitting ? '作成中...' : '一括作成する' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
         <!-- 成功メッセージ -->
         <div v-if="successMessage" class="success-message">
@@ -209,6 +312,7 @@ const errorMessage = ref('')
 // モーダル状態
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
+const showBulkCreateModal = ref(false)
 const editingSlot = ref<any>(null)
 
 // フォームデータ
@@ -227,6 +331,16 @@ const editForm = ref({
     date: '',
     start_time: '',
     duration: ''
+})
+
+// 一括作成フォームデータ
+const bulkCreateForm = ref({
+    start_date: today.value,
+    end_date: '',
+    weekdays: [] as number[],  // 0=日曜, 1=月曜, ..., 6=土曜
+    time_start: '14:00',
+    time_end: '18:00',
+    duration: '60'
 })
 
 // 日付でグループ化
@@ -409,6 +523,169 @@ const closeEditModal = () => {
     editingSlot.value = null
 }
 
+const closeBulkCreateModal = () => {
+    showBulkCreateModal.value = false
+    // フォームをリセット
+    bulkCreateForm.value = {
+        start_date: today.value,
+        end_date: '',
+        weekdays: [],
+        time_start: '14:00',
+        time_end: '18:00',
+        duration: '60'
+    }
+}
+
+// レッスン枠を一括作成
+const bulkCreateSlots = async () => {
+    try {
+        // 1. バリデーション（入力チェック）
+        if (bulkCreateForm.value.weekdays.length === 0) {
+            errorMessage.value = '曜日を1つ以上選択してください'
+            setTimeout(() => { errorMessage.value = '' }, 5000)
+            return
+        }
+
+        if (!bulkCreateForm.value.end_date) {
+            errorMessage.value = '終了日を入力してください'
+            setTimeout(() => { errorMessage.value = '' }, 5000)
+            return
+        }
+
+        submitting.value = true
+        errorMessage.value = ''
+
+        // 2. 選択された曜日に該当する日付を抽出
+        const targetDates = getTargetDates(
+            bulkCreateForm.value.start_date as string,
+            bulkCreateForm.value.end_date as string,
+            bulkCreateForm.value.weekdays
+        )
+
+        if (targetDates.length === 0) {
+            errorMessage.value = '指定された期間に該当する曜日がありません'
+            setTimeout(() => { errorMessage.value = '' }, 5000)
+            submitting.value = false
+            return
+        }
+
+        // 3. 時間枠を計算（14:00-18:00, 60分 → [14:00, 15:00, 16:00, 17:00]）
+        const timeSlots = generateTimeSlots(
+            bulkCreateForm.value.time_start,
+            bulkCreateForm.value.time_end,
+            parseInt(bulkCreateForm.value.duration)
+        )
+
+        if (timeSlots.length === 0) {
+            errorMessage.value = '時間設定が正しくありません'
+            setTimeout(() => { errorMessage.value = '' }, 5000)
+            submitting.value = false
+            return
+        }
+
+        // 4. 各日付ごとにAPIを呼び出す
+        let totalCreated = 0
+        const errors: string[] = []
+
+        for (const date of targetDates) {
+            try {
+                const response = await fetchWithAuth('http://localhost/api/lesson-slots/bulk', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        date: date,
+                        slots: timeSlots
+                    })
+                })
+
+                if (response.success) {
+                    totalCreated += response.data.length
+                } else {
+                    errors.push(`${date}: ${response.message || 'エラー'}`)
+                }
+            } catch (err: any) {
+                errors.push(`${date}: 通信エラー`)
+            }
+        }
+
+        // 5. 結果を表示
+        if (totalCreated > 0) {
+            successMessage.value = `${totalCreated}個のレッスン枠を作成しました`
+            setTimeout(() => { successMessage.value = '' }, 3000)
+
+            closeBulkCreateModal()
+            await loadSlots()
+        }
+
+        if (errors.length > 0) {
+            errorMessage.value = `一部エラーが発生しました: ${errors.slice(0, 3).join(', ')}`
+            setTimeout(() => { errorMessage.value = '' }, 8000)
+        }
+
+        if (totalCreated === 0 && errors.length > 0) {
+            errorMessage.value = 'レッスン枠の作成に失敗しました'
+            setTimeout(() => { errorMessage.value = '' }, 5000)
+        }
+
+    } catch (err: any) {
+        console.error('一括作成エラー:', err)
+        errorMessage.value = '通信エラーが発生しました'
+        setTimeout(() => { errorMessage.value = '' }, 5000)
+    } finally {
+        submitting.value = false
+    }
+}
+
+// 指定された期間と曜日から、該当する日付のリストを作成
+const getTargetDates = (startDate: string, endDate: string, weekdays: number[]) => {
+    const dates: string[] = []
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+
+    // 開始日から終了日まで1日ずつ進める
+    for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+        const dayOfWeek = date.getDay() // 0=日曜, 1=月曜, ..., 6=土曜
+        // 選択された曜日に含まれているか
+        if (weekdays.includes(dayOfWeek)) {
+            // YYYY-MM-DD 形式で追加
+            const year = date.getFullYear()
+            const month = String(date.getMonth() + 1).padStart(2, '0')
+            const day = String(date.getDate()).padStart(2, '0')
+            dates.push(`${year}-${month}-${day}`)
+        }
+    }
+
+    return dates
+}
+
+// 開始時刻から終了時刻までの時間枠を生成
+const generateTimeSlots = (startTime: string, endTime: string, duration: number) => {
+    const slots: Array<{start_time: string, duration: number}> = []
+
+    // 時刻を分に変換（例: "14:00" → 840分）
+    const timeToMinutes = (time: string): number => {
+    const [hours = 0, minutes = 0] = time.split(':').map(Number)
+    return hours * 60 + minutes
+}
+
+    const startMinutes = timeToMinutes(startTime)
+    const endMinutes = timeToMinutes(endTime)
+
+    // 開始時刻から終了時刻まで、duration分ずつ進める
+    for (let current = startMinutes; current + duration <= endMinutes; current += duration) {
+        const hours = Math.floor(current / 60)
+        const minutes = current % 60
+        const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
+
+        slots.push({
+            start_time: timeString,
+            duration: duration
+        })
+    }
+
+    return slots
+}
+
+
 // 日付をフォーマット
 const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -446,6 +723,28 @@ const formatTime = (timeString: string) => {
     font-size: 2rem;
     font-weight: 700;
     color: #1a202c;
+}
+
+.button-group {
+    display: flex;
+    gap: 1rem;
+}
+
+.bulk-create-button {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.bulk-create-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(245, 87, 108, 0.4);
 }
 
 .create-button {
@@ -827,6 +1126,76 @@ tr:hover {
 .error-message {
     background-color: #f56565;
     color: white;
+}
+
+/* 一括作成モーダル専用のスタイル */
+.bulk-modal {
+    max-width: 600px;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.form-section:last-of-type {
+    border-bottom: none;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 1rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.weekdays-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+}
+
+.weekday-checkbox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem 0.5rem;
+    background-color: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.weekday-checkbox:hover {
+    background-color: #edf2f7;
+    border-color: #cbd5e0;
+}
+
+.weekday-checkbox input[type="checkbox"] {
+    margin-bottom: 0.25rem;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
+.weekday-checkbox input[type="checkbox"]:checked + span {
+    color: #667eea;
+    font-weight: 700;
+}
+
+.weekday-checkbox span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #4a5568;
+    user-select: none;
 }
 
 @keyframes slideIn {
