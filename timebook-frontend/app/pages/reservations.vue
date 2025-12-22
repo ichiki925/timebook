@@ -345,11 +345,11 @@ function getStatusText(status) {
 
 .input-group input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #5dade2;
 }
 
 .search-button {
-    background: linear-gradient(135deg, #667eea 0%, #64b5f6 100%);
+    background: #5dade2;
     color: white;
     border: none;
     border-radius: 8px;
@@ -363,7 +363,7 @@ function getStatusText(status) {
 
 .search-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 8px rgba(93, 173, 226, 0.4);
 }
 
 .search-button:disabled {
@@ -598,7 +598,7 @@ function getStatusText(status) {
 }
 
 .cancel-info {
-    background: linear-gradient(135deg, #667eea 0%, #64b5f6 100%);
+    background: #5dade2;
     color: white;
     padding: 1rem;
     border-radius: 8px;

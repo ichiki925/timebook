@@ -86,7 +86,7 @@ const handleLogin = async () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #5dade2;
     padding: 1rem;
 }
 
@@ -106,7 +106,7 @@ const handleLogin = async () => {
 
 .login-header h1 {
     font-size: 2rem;
-    color: #667eea;
+    color: #5dade2;
     margin-bottom: 0.5rem;
 }
 
@@ -142,7 +142,7 @@ const handleLogin = async () => {
 
 .form-input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #5dade2;
 }
 
 .error-message {
@@ -154,7 +154,7 @@ const handleLogin = async () => {
 }
 
 .login-button {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #5dade2;
     color: white;
     padding: 1rem;
     border: none;
@@ -180,12 +180,51 @@ const handleLogin = async () => {
 }
 
 .back-link {
-    color: #667eea;
+    color: #5dade2;
     text-decoration: none;
     font-size: 0.9rem;
 }
 
 .back-link:hover {
     text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .login-container {
+        background: white;
+        padding: 2rem 0 0 0;
+        min-height: 100vh;
+        height: auto;
+        display: block;
+    }
+
+    .login-card {
+        box-shadow: none;
+        border-radius: 0;
+        padding: 1.5rem 1.5rem;
+        max-width: 100%;
+    }
+
+    .login-header {
+        margin-bottom: 1.5rem;
+    }
+
+
+    .login-header h1 {
+        color: #5dade2;
+    }
+
+    .login-header p {
+        font-size: 0.9rem;
+    }
+
+    .login-form {
+        gap: 1.25rem;
+    }
+
+    .login-button {
+        margin-top: 2rem;
+    }
+
 }
 </style>

@@ -51,7 +51,7 @@
             <!-- 今日の予約一覧 -->
             <div class="today-reservations">
                 <h2 class="section-title">今日の予約</h2>
-                
+
                 <div v-if="todayReservations.length === 0" class="no-reservations">
                     <p>今日の予約はありません</p>
                 </div>
@@ -69,7 +69,7 @@
                                 <p class="student-email">{{ reservation.student_email }}</p>
                             </div>
                         </div>
-                        
+
                         <div class="lesson-time">
                             <p class="time">
                                 {{ formatTime(reservation.lesson_start_time) }} - {{ formatTime(reservation.lesson_end_time) }}
@@ -147,6 +147,7 @@ const formatTime = (time: string) => {
 <style scoped>
 .container {
     max-width: 1200px;
+    background: #f0f8ff;
     margin: 0 auto;
     padding: 2rem;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -175,7 +176,7 @@ const formatTime = (time: string) => {
 
 .spinner {
     border: 4px solid #f3f3f3;
-    border-top: 4px solid #667eea;
+    border-top: 4px solid #5dade2;
     border-radius: 50%;
     width: 50px;
     height: 50px;
@@ -217,19 +218,11 @@ const formatTime = (time: string) => {
 
 .stat-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 12px rgba(93, 173, 226, 0.3);
 }
 
-.stat-card-blue {
-    border-left: 5px solid #667eea;
-}
-
-.stat-card-green {
-    border-left: 5px solid #48bb78;
-}
-
-.stat-card-purple {
-    border-left: 5px solid #9f7aea;
+.stat-card {
+    border-left: 5px solid #5dade2;
 }
 
 .stat-icon {
@@ -306,7 +299,7 @@ const formatTime = (time: string) => {
 
 .student-icon {
     font-size: 2.5rem;
-    background: linear-gradient(135deg, #667eea 0%, #64b5f6 100%);
+    background: #5dade2;
     width: 50px;
     height: 50px;
     border-radius: 50%;

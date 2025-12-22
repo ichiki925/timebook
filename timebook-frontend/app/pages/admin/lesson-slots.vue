@@ -707,6 +707,7 @@ const formatTime = (timeString: string) => {
 <style scoped>
 .container {
     max-width: 1200px;
+    background: #f0f8ff;
     margin: 0 auto;
     padding: 2rem;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -731,7 +732,7 @@ const formatTime = (timeString: string) => {
 }
 
 .bulk-create-button {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: #ff9ac1;
     color: white;
     border: none;
     border-radius: 8px;
@@ -748,7 +749,7 @@ const formatTime = (timeString: string) => {
 }
 
 .create-button {
-    background: linear-gradient(135deg, #667eea 0%, #64b5f6 100%);
+    background: #5dade2;
     color: white;
     border: none;
     border-radius: 8px;
@@ -761,7 +762,7 @@ const formatTime = (timeString: string) => {
 
 .create-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 8px rgba(93, 173, 226, 0.4);
 }
 
 .loading {
@@ -771,7 +772,7 @@ const formatTime = (timeString: string) => {
 
 .spinner {
     border: 4px solid #f3f3f3;
-    border-top: 4px solid #667eea;
+    border-top: 4px solid #5dade2;
     border-radius: 50%;
     width: 50px;
     height: 50px;
@@ -828,7 +829,7 @@ const formatTime = (timeString: string) => {
     font-weight: 700;
     color: #2d3748;
     padding: 1rem 1.5rem;
-    background: linear-gradient(135deg, #667eea 0%, #64b5f6 100%);
+    background: #5dade2;
     color: white;
     margin: 0;
 }
@@ -1061,7 +1062,7 @@ tr:hover {
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #5dade2;
 }
 
 .modal-footer {
@@ -1092,13 +1093,13 @@ tr:hover {
 }
 
 .submit-button {
-    background: linear-gradient(135deg, #667eea 0%, #64b5f6 100%);
+    background: #5dade2;
     color: white;
 }
 
 .submit-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 8px rgba(93, 173, 226, 0.4);
 }
 
 .submit-button:disabled {
@@ -1187,7 +1188,7 @@ tr:hover {
 }
 
 .weekday-checkbox input[type="checkbox"]:checked + span {
-    color: #667eea;
+    color: #5dade2;
     font-weight: 700;
 }
 

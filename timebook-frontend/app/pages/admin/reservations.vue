@@ -238,7 +238,7 @@ const formatDate = (date: Date) => {
 <style scoped>
 .reservations-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #64b5f6 100%);
+    background: #f0f8ff;
     padding: 2rem 0;
 }
 
@@ -249,7 +249,7 @@ const formatDate = (date: Date) => {
 }
 
 .page-title {
-    color: white;
+    color: #2d3748;
     font-size: 2rem;
     margin-bottom: 2rem;
     text-align: center;
@@ -292,12 +292,12 @@ const formatDate = (date: Date) => {
 .filter-group input:focus,
 .filter-group select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #5dade2;
 }
 
 .filter-button {
     padding: 0.5rem 1.5rem;
-    background: #667eea;
+    background: #5dade2;
     color: white;
     border: none;
     border-radius: 6px;
@@ -307,7 +307,7 @@ const formatDate = (date: Date) => {
 }
 
 .filter-button:hover {
-    background: #5568d3;
+    background: #4a9eca;
 }
 
 /* ローディング */
@@ -317,7 +317,7 @@ const formatDate = (date: Date) => {
     border-radius: 12px;
     text-align: center;
     font-size: 1.2rem;
-    color: #667eea;
+    color: #5dade2;
 }
 
 /* テーブル */
@@ -334,7 +334,7 @@ const formatDate = (date: Date) => {
 }
 
 .reservations-table thead {
-    background: linear-gradient(135deg, #667eea 0%, #64b5f6 100%);
+    background: #5dade2;
 }
 
 .reservations-table th {

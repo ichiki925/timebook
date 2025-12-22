@@ -3,7 +3,7 @@
     <div class="hero">
       <h1>🎹 TimeBook へようこそ</h1>
       <p class="subtitle">レッスン予約管理システム</p>
-      
+
       <div class="cta-buttons">
         <NuxtLink to="/slots" class="cta-button primary">
           📅 空き枠を見る
@@ -20,13 +20,13 @@
         <h3>簡単予約</h3>
         <p>空いているレッスン枠から好きな時間を選んで予約</p>
       </div>
-      
+
       <div class="feature-card">
         <div class="feature-icon">📋</div>
         <h3>予約管理</h3>
         <p>メールアドレスで予約履歴を確認・キャンセル</p>
       </div>
-      
+
       <div class="feature-card">
         <div class="feature-icon">🎹</div>
         <h3>レッスン管理</h3>
@@ -46,7 +46,7 @@
 .hero {
   text-align: center;
   padding: 4rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #5dade2;
   color: white;
   border-radius: 16px;
   margin-bottom: 3rem;
@@ -83,7 +83,7 @@
 
 .cta-button.primary {
   background: white;
-  color: #667eea;
+  color: #5dade2;
 }
 
 .cta-button.primary:hover {
@@ -129,7 +129,7 @@
 }
 
 .feature-card h3 {
-  color: #667eea;
+  color: #5dade2;
   margin-bottom: 0.5rem;
   font-size: 1.5rem;
 }

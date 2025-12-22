@@ -346,7 +346,7 @@ fetchSlots()
     color: #2d3748;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 3px solid #667eea;
+    border-bottom: 3px solid #5dade2;
 }
 
 .slots-grid {
@@ -356,11 +356,11 @@ fetchSlots()
 }
 
 .slot-card {
-    background: linear-gradient(135deg, #667eea 0%, #64b5f6 100%);
+    background: #5dade2;
     border-radius: 12px;
     padding: 1.5rem;
     color: white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(93, 173, 226, 0.2);
     transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
     flex-direction: column;
@@ -369,7 +369,7 @@ fetchSlots()
 
 .slot-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 12px rgba(93, 173, 226, 0.3);
 }
 
 .slot-info {
@@ -389,7 +389,7 @@ fetchSlots()
 
 .reserve-button {
     background-color: white;
-    color: #667eea;
+    color: #5dade2;
     border: none;
     border-radius: 8px;
     padding: 0.75rem 1.5rem;
@@ -492,7 +492,7 @@ fetchSlots()
 }
 
 .selected-slot-info {
-    background: linear-gradient(135deg, #667eea 0%, #64b5f6 100%);
+    background: #5dade2;
     color: white;
     padding: 1rem;
     border-radius: 8px;
@@ -533,7 +533,7 @@ fetchSlots()
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #5dade2;
 }
 
 .modal-footer {
@@ -564,13 +564,13 @@ fetchSlots()
 }
 
 .submit-button {
-    background: linear-gradient(135deg, #667eea 0%, #64b5f6 100%);
+    background: #5dade2;
     color: white;
 }
 
 .submit-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 8px rgba(93, 173, 226, 0.4);
 }
 
 .submit-button:disabled {
