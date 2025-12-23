@@ -4,27 +4,32 @@
             <!-- ロゴ部分 -->
             <div class="logo">
                 <NuxtLink to="/admin/dashboard">
-                    🎹 TimeBook
+                    <MusicalNoteIcon class="logo-icon" />
+                    <span>TimeBook</span>
                 </NuxtLink>
             </div>
 
             <!-- ナビゲーション部分 -->
             <nav>
                 <NuxtLink to="/admin/dashboard" class="nav-link">
-                    📊 ダッシュボード
+                    <ChartBarIcon class="nav-icon" />
+                    <span>ダッシュボード</span>
                 </NuxtLink>
                 <NuxtLink to="/admin/lesson-slots" class="nav-link">
-                    📅 レッスン枠管理
+                    <CalendarDaysIcon class="nav-icon" />
+                    <span>レッスン枠管理</span>
                 </NuxtLink>
                 <NuxtLink to="/admin/reservations" class="nav-link">
-                    📋 予約管理
+                    <ClipboardDocumentListIcon class="nav-icon" />
+                    <span>予約管理</span>
                 </NuxtLink>
 
                 <!-- ユーザー情報部分 -->
                 <div class="user-info">
                     <span class="teacher-name">{{ teacherName }}</span>
                     <button @click="handleLogout" class="logout-button">
-                        🚪 ログアウト
+                        <ArrowRightStartOnRectangleIcon class="nav-icon" />
+                        <span>ログアウト</span>
                     </button>
                 </div>
             </nav>
@@ -33,6 +38,13 @@
 </template>
 
 <script setup lang="ts">
+import {
+  MusicalNoteIcon,           // 🎹 ロゴ
+  ChartBarIcon,              // 📊 ダッシュボード
+  CalendarDaysIcon,          // 📅 レッスン枠管理
+  ClipboardDocumentListIcon, // 📋 予約管理
+  ArrowRightStartOnRectangleIcon  // 🚪 ログアウト
+} from '@heroicons/vue/24/outline'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -91,6 +103,9 @@ header {
 }
 
 .logo a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 1.5rem;
     font-weight: bold;
     color: white;
@@ -102,6 +117,12 @@ header {
     opacity: 0.8;
 }
 
+.logo-icon {
+    width: 28px;
+    height: 28px;
+}
+
+
 nav {
     display: flex;
     gap: 1.5rem;
@@ -109,6 +130,9 @@ nav {
 }
 
 .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     color: white;
     text-decoration: none;
     font-weight: 500;
@@ -117,9 +141,16 @@ nav {
     transition: all 0.3s ease;
 }
 
+
 .nav-link:hover {
     background: rgba(255, 255, 255, 0.2);
 }
+
+.nav-icon {
+    width: 20px;
+    height: 20px;
+}
+
 
 /* ここから新しい部分！ */
 .user-info {
@@ -137,6 +168,9 @@ nav {
 }
 
 .logout-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     background: rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.3);
     color: white;

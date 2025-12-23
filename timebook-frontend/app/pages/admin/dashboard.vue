@@ -22,7 +22,7 @@
             <div class="stats-grid">
                 <!-- 今日の予約 -->
                 <div class="stat-card stat-card-blue">
-                    <div class="stat-icon">📅</div>
+                    <CalendarDaysIcon class="stat-icon" />
                     <div class="stat-content">
                         <p class="stat-label">今日の予約</p>
                         <p class="stat-value">{{ todayCount }}件</p>
@@ -31,7 +31,7 @@
 
                 <!-- 今月の予約 -->
                 <div class="stat-card stat-card-green">
-                    <div class="stat-icon">✅</div>
+                    <CheckBadgeIcon class="stat-icon" />
                     <div class="stat-content">
                         <p class="stat-label">今月の予約</p>
                         <p class="stat-value">{{ stats?.this_month_reservations || 0 }}件</p>
@@ -40,7 +40,7 @@
 
                 <!-- 全体の予約 -->
                 <div class="stat-card stat-card-purple">
-                    <div class="stat-icon">📊</div>
+                    <ChartBarIcon class="stat-icon" />
                     <div class="stat-content">
                         <p class="stat-label">全体の予約</p>
                         <p class="stat-value">{{ stats?.total_reservations || 0 }}件</p>
@@ -63,7 +63,7 @@
                         class="reservation-card"
                     >
                         <div class="reservation-info">
-                            <div class="student-icon">👤</div>
+                            <UserCircleIcon class="student-icon" />
                             <div class="student-details">
                                 <p class="student-name">{{ reservation.student_name }}</p>
                                 <p class="student-email">{{ reservation.student_email }}</p>
@@ -86,6 +86,13 @@
 </template>
 
 <script setup lang="ts">
+import {
+    CalendarDaysIcon,
+    CheckBadgeIcon,
+    ChartBarIcon,
+    UserCircleIcon
+} from '@heroicons/vue/24/outline'
+
 definePageMeta({
     middleware: 'auth'
 })
@@ -226,7 +233,10 @@ const formatTime = (time: string) => {
 }
 
 .stat-icon {
-    font-size: 3rem;
+    width: 48px;
+    height: 48px;
+    color: #5dade2;
+    flex-shrink: 0;
 }
 
 .stat-content {
@@ -298,14 +308,10 @@ const formatTime = (time: string) => {
 }
 
 .student-icon {
-    font-size: 2.5rem;
-    background: #5dade2;
     width: 50px;
     height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    color: #5dade2;
+    flex-shrink: 0;
 }
 
 .student-details {

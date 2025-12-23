@@ -3,18 +3,22 @@
         <div class="container">
             <div class="logo">
                 <NuxtLink to="/">
-                    🎹 TimeBook
+                    <MusicalNoteIcon class="logo-icon" />
+                    <span>TimeBook</span>
                 </NuxtLink>
             </div>
             <nav>
                 <NuxtLink to="/slots" class="nav-link">
-                    📅 空き枠一覧
+                    <CalendarDaysIcon class="nav-icon" />
+                    <span>空き枠一覧</span>
                 </NuxtLink>
                 <NuxtLink to="/reservations" class="nav-link">
-                    📋 予約確認
+                    <ClipboardDocumentListIcon class="nav-icon" />
+                    <span>予約確認</span>
                 </NuxtLink>
                 <NuxtLink to="/login" class="nav-link login-link">
-                    🔐 講師ログイン
+                    <LockClosedIcon class="nav-icon" />
+                    <span>講師ログイン</span>
                 </NuxtLink>
             </nav>
         </div>
@@ -22,7 +26,12 @@
 </template>
 
 <script setup lang="ts">
-// 生徒向けヘッダー - ログイン不要
+import {
+    MusicalNoteIcon,
+    CalendarDaysIcon,
+    ClipboardDocumentListIcon,
+    LockClosedIcon
+} from '@heroicons/vue/24/outline'
 </script>
 
 <style scoped>
@@ -44,6 +53,9 @@ header {
 }
 
 .logo a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 1.5rem;
     font-weight: bold;
     color: white;
@@ -55,6 +67,11 @@ header {
     opacity: 0.8;
 }
 
+.logo-icon {
+    width: 28px;
+    height: 28px;
+}
+
 nav {
     display: flex;
     gap: 2rem;
@@ -62,6 +79,9 @@ nav {
 }
 
 .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     color: white;
     text-decoration: none;
     font-weight: 500;
@@ -72,6 +92,11 @@ nav {
 
 .nav-link:hover {
     background: rgba(255, 255, 255, 0.2);
+}
+
+.nav-icon {
+    width: 20px;
+    height: 20px;
 }
 
 .login-link {

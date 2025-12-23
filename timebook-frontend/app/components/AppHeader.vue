@@ -5,7 +5,7 @@
                 <!-- ロゴ/タイトル -->
                 <div class="logo">
                     <NuxtLink to="/">
-                        <span class="logo-icon">🎹</span>
+                        <MusicalNoteIcon class="logo-icon" />
                         <span class="logo-text">TimeBook</span>
                     </NuxtLink>
                 </div>
@@ -13,19 +13,31 @@
                 <!-- ナビゲーション -->
                 <nav class="nav">
                     <NuxtLink to="/slots" class="nav-link">
-                        📅 空き枠一覧
+                        <CalendarDaysIcon class="nav-icon" />
+                        <span>空き枠一覧</span>
                     </NuxtLink>
                     <NuxtLink to="/reservations" class="nav-link">
-                        📋 予約履歴
+                        <ClipboardDocumentListIcon class="nav-icon" />
+                        <span>予約履歴</span>
                     </NuxtLink>
                     <NuxtLink to="/login" class="nav-link">
-                        🔐 ログイン
+                        <LockClosedIcon class="nav-icon" />
+                        <span>ログイン</span>
                     </NuxtLink>
                 </nav>
             </div>
         </div>
     </header>
 </template>
+
+<script setup lang="ts">
+import {
+  MusicalNoteIcon,
+  CalendarDaysIcon,
+  ClipboardDocumentListIcon,
+  LockClosedIcon
+} from '@heroicons/vue/24/outline'
+</script>
 
 <style scoped>
 .app-header {
@@ -67,7 +79,8 @@
 }
 
 .logo-icon {
-  font-size: 2rem;
+  width: 32px;
+  height: 32px;
 }
 
 .logo-text {
@@ -81,6 +94,9 @@
 }
 
 .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   color: white;
   text-decoration: none;
   padding: 0.5rem 1rem;
@@ -91,6 +107,11 @@
 
 .nav-link:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
 }
 
 /* アクティブなリンク */
@@ -113,7 +134,8 @@
   }
 
   .nav-link {
-    display: block;
+    display: flex;
+    justify-content: center;
   }
 
   .logo-text {
