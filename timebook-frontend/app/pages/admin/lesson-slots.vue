@@ -412,7 +412,11 @@ const createSlot = async () => {
 
         const response = await fetchWithAuth('http://localhost/api/lesson-slots', {
             method: 'POST',
-            body: JSON.stringify(createForm.value)
+            body: JSON.stringify({
+                date: createForm.value.date,
+                start_time: createForm.value.start_time,
+                duration: parseInt(createForm.value.duration)
+            })
         })
 
         if (response.success) {
