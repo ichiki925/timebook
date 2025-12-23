@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <h1 class="title">利用可能なレッスン枠</h1>
+        <h1 class="title">レッスン予約カレンダー</h1>
 
         <div v-if="loading" class="loading">
             <p>読み込み中...</p>
@@ -10,51 +10,70 @@
             <p>エラー: {{ error }}</p>
         </div>
 
-        <div v-else class="slots-container">
-            <div v-if="slots.length === 0" class="no-slots">
-                <p>現在、予約可能なレッスン枠はありません。</p>
+        <div v-else class="calendar-container">
+            <!-- 週の移動ボタン -->
+            <div class="week-navigation">
+                <button @click="previousWeek" class="nav-button">← 前の週</button>
+                <div class="week-info">
+                    {{ formatWeekRange() }}
+                </div>
+                <button @click="nextWeek" class="nav-button">次の週 →</button>
             </div>
 
-            <div v-else>
-                <!-- 日付グループごとにループ -->
-                <div
-                    v-for="(group, date) in groupedSlots"
-                    :key="date"
-                    class="date-group"
-                >
-                    <!-- 日付の見出し -->
-                    <h2 class="date-header">
-                        {{ formatDateHeader(date) }}
-                    </h2>
+            <!-- カレンダー本体 -->
+            <div class="calendar">
+                <!-- ヘッダー（曜日） -->
+                <div class="calendar-header">
+                    <div class="time-column-header"></div>
+                    <div
+                        v-for="(date, index) in weekDates"
+                        :key="index"
+                        class="day-header"
+                    >
+                        <div class="day-name">{{ formatDayName(date) }}</div>
+                        <div class="day-date">{{ formatDayDate(date) }}</div>
+                    </div>
+                </div>
 
-                    <!-- その日のレッスン枠 -->
-                    <div class="slots-grid">
+                <!-- 時間軸 + レッスン枠 -->
+                <div class="calendar-body">
+                    <div
+                        v-for="(timeSlot, index) in timeSlots"
+                        :key="timeSlot.label"
+                        class="time-row"
+                    >
+                        <!-- 時間ラベル -->
+                        <div class="time-label">
+                            {{ index > 0 && timeSlot.minute === 0 ? timeSlot.label : '' }}
+                        </div>
+
+                        <!-- 各曜日のセル -->
                         <div
-                            v-for="slot in group"
-                            :key="slot.id"
-                            class="slot-card"
+                            v-for="(date, dateIndex) in weekDates"
+                            :key="dateIndex"
+                            class="time-cell"
                         >
-                            <div class="slot-info">
-                                <div class="slot-time">
-                                    {{ slot.start_time.substring(0, 5) }} - {{ slot.end_time.substring(0, 5) }}
-                                </div>
-                                <div class="slot-duration">
-                                    {{ slot.duration }}分
+                            <!-- レッスン枠があれば表示 -->
+                            <div
+                                v-if="getSlotForCell(date, timeSlot)"
+                                class="lesson-slot"
+                                :style="{
+                                    height: getSlotHeight(getSlotForCell(date, timeSlot).duration) + 'px'
+                                }"
+                                @click="openModal(getSlotForCell(date, timeSlot))"
+                            >
+                                <div class="slot-time-display">
+                                    {{ getSlotForCell(date, timeSlot).start_time.substring(0, 5) }} - 
+                                    {{ getSlotForCell(date, timeSlot).end_time.substring(0, 5) }}
                                 </div>
                             </div>
-
-                            <button
-                                class="reserve-button"
-                                @click="openModal(slot)"
-                            >
-                                予約する
-                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- 予約モーダル（既存のまま） -->
         <div v-if="showModal" class="modal-overlay" @click="closeModal">
             <div class="modal-content" @click.stop>
                 <div class="modal-header">
@@ -62,7 +81,6 @@
                     <button class="close-button" @click="closeModal">×</button>
                 </div>
                 <div class="modal-body">
-                    <!-- 選択したレッスン枠の情報 -->
                     <div class="selected-slot-info">
                         <p><strong>{{ formatDate(selectedSlot.date) }}</strong></p>
                         <p>{{ selectedSlot.start_time.substring(0, 5) }} - {{ selectedSlot.end_time.substring(0, 5) }}（{{ selectedSlot.duration }}分）</p>
@@ -70,7 +88,7 @@
                     <form @submit.prevent="submitReservation">
                         <div class="form-group">
                             <label for="name">お名前 <span class="required">*</span></label>
-                            <input 
+                            <input
                                 id="name"
                                 v-model="formData.name"
                                 type="text"
@@ -81,7 +99,7 @@
 
                         <div class="form-group">
                             <label for="email">メールアドレス <span class="required">*</span></label>
-                            <input 
+                            <input
                                 id="email"
                                 v-model="formData.email"
                                 type="email"
@@ -92,7 +110,7 @@
 
                         <div class="form-group">
                             <label for="phone">電話番号 <span class="required">*</span></label>
-                            <input 
+                            <input
                                 id="phone"
                                 v-model="formData.phone"
                                 type="tel"
@@ -103,7 +121,7 @@
 
                         <div class="form-group">
                             <label for="notes">備考</label>
-                            <textarea 
+                            <textarea
                                 id="notes"
                                 v-model="formData.notes"
                                 rows="3"
@@ -112,15 +130,15 @@
                         </div>
 
                         <div class="modal-footer">
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 class="cancel-button"
                                 @click="closeModal"
                             >
                                 キャンセル
                             </button>
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 class="submit-button"
                                 :disabled="submitting"
                             >
@@ -131,6 +149,7 @@
                 </div>
             </div>
         </div>
+
         <!-- 成功メッセージ -->
         <div v-if="successMessage" class="success-message">
             {{ successMessage }}
@@ -151,6 +170,70 @@ const loading = ref(true)
 const error = ref(null)
 const successMessage = ref('')
 const reservationError = ref('')
+const currentWeekStart = ref(new Date())
+
+// 週の開始日を月曜日に設定する関数
+function getMonday(date) {
+    const d = new Date(date)
+    const day = d.getDay()
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1) // 日曜日の場合は-6、それ以外は1を足す
+    return new Date(d.setDate(diff))
+}
+
+// 週の日付を取得（月曜〜日曜）
+const weekDates = computed(() => {
+    const monday = getMonday(currentWeekStart.value)
+    const dates = []
+
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(monday)
+        date.setDate(monday.getDate() + i)
+        dates.push(date)
+    }
+
+    return dates
+})
+
+// 前の週に移動
+function previousWeek() {
+    const newDate = new Date(currentWeekStart.value)
+    newDate.setDate(newDate.getDate() - 7)
+    currentWeekStart.value = newDate
+}
+
+// 次の週に移動
+function nextWeek() {
+    const newDate = new Date(currentWeekStart.value)
+    newDate.setDate(newDate.getDate() + 7)
+    currentWeekStart.value = newDate
+}
+
+// 時間軸の生成（10:00 〜 20:00、30分刻み）
+const timeSlots = computed(() => {
+    const slots = []
+    const startHour = 9  // 開始時刻
+    const endHour = 21    // 終了時刻
+
+    for (let hour = startHour; hour <= endHour; hour++) {
+        // 00分
+        slots.push({
+            hour: hour,
+            minute: 0,
+            label: `${String(hour).padStart(2, '0')}:00`
+        })
+
+        // 30分（最後の時間は30分を追加しない）
+        if (hour < endHour) {
+            slots.push({
+                hour: hour,
+                minute: 30,
+                label: `${String(hour).padStart(2, '0')}:30`
+            })
+        }
+    }
+
+    return slots
+})
 
 // モーダル関連の状態
 const showModal = ref(false)
@@ -209,6 +292,59 @@ function formatDate(dateString) {
     const weekday = weekdays[date.getDay()]
 
     return `${year}年${month}月${day}日（${weekday}）`
+}
+
+// 週の範囲を表示する関数
+function formatWeekRange() {
+    const start = weekDates.value[0]
+    const end = weekDates.value[6]
+
+    return `${start.getMonth() + 1}月${start.getDate()}日 - ${end.getMonth() + 1}月${end.getDate()}日`
+}
+
+// 曜日名を取得
+function formatDayName(date) {
+    const weekdays = ['日', '月', '火', '水', '木', '金', '土']
+    return weekdays[date.getDay()]
+}
+
+// 日付を取得
+function formatDayDate(date) {
+    return `${date.getMonth() + 1}/${date.getDate()}`
+}
+
+// 日付を YYYY-MM-DD 形式に変換
+function formatDateYYYYMMDD(date) {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+}
+
+// 特定の日付・時間のレッスン枠を取得
+function getSlotForCell(date, timeSlot) {
+    const dateString = formatDateYYYYMMDD(date)
+
+    // その日のレッスン枠を探す
+    return slots.value.find(slot => {
+        // APIの日付形式（2025-12-22T00:00:00.000000Z）を YYYY-MM-DD に変換
+        const slotDate = slot.date.substring(0, 10)  // ← この行を追加
+
+        if (slotDate !== dateString) return false  // ← slot.date を slotDate に変更
+
+        // 開始時刻を比較
+        const slotStartHour = parseInt(slot.start_time.substring(0, 2))
+        const slotStartMinute = parseInt(slot.start_time.substring(3, 5))
+
+        return slotStartHour === timeSlot.hour && slotStartMinute === timeSlot.minute
+    })
+}
+
+// レッスン枠の高さを計算（duration に応じて）
+function getSlotHeight(duration) {
+    // 30分 = 1マス（60px）
+    // 60分 = 2マス（120px）
+    return (duration / 30) * 60
 }
 
 // モーダルを開く
@@ -305,7 +441,7 @@ fetchSlots()
 
 <style scoped>
 .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 2rem;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -330,66 +466,21 @@ fetchSlots()
     border-radius: 8px;
 }
 
-.no-slots {
-    text-align: center;
-    padding: 3rem;
-    color: #718096;
-}
-
-.date-group {
-    margin-bottom: 3rem;
-}
-
-.date-header {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #2d3748;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 3px solid #5dade2;
-}
-
-.slots-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-}
-
-.slot-card {
-    background: #5dade2;
-    border-radius: 12px;
-    padding: 1.5rem;
-    color: white;
-    box-shadow: 0 4px 6px rgba(93, 173, 226, 0.2);
-    transition: transform 0.2s, box-shadow 0.2s;
+/* 週の移動ボタン */
+.week-navigation {
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.slot-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 12px rgba(93, 173, 226, 0.3);
-}
-
-.slot-info {
-    flex: 1;
-}
-
-.slot-time {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.slot-duration {
-    font-size: 0.9rem;
-    opacity: 0.9;
-}
-
-.reserve-button {
-    background-color: white;
-    color: #5dade2;
+.nav-button {
+    background: #5dade2;
+    color: white;
     border: none;
     border-radius: 8px;
     padding: 0.75rem 1.5rem;
@@ -397,19 +488,88 @@ fetchSlots()
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
-    width: 100%;
 }
 
-.reserve-button:hover {
-    background-color: #f7fafc;
-    transform: scale(1.02);
+.nav-button:hover {
+    background: #4a9fd5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(93, 173, 226, 0.3);
 }
 
-.reserve-button:active {
-    transform: scale(0.98);
+.week-info {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
 }
 
-/* ⭐ モーダルのスタイル */
+/* カレンダー本体 */
+.calendar {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* ヘッダー（曜日） */
+.calendar-header {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    background: #f7fafc;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.day-header {
+    padding: 1rem;
+    text-align: center;
+    border-left: 1px solid #e2e8f0;
+}
+
+.day-name {
+    font-size: 0.875rem;
+    color: #718096;
+    margin-bottom: 0.25rem;
+}
+
+.day-date {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+/* カレンダー本体 */
+.calendar-body {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.time-row {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    min-height: 60px;
+}
+
+.time-label {
+    padding: 0.5rem;
+    text-align: right;
+    font-size: 0.875rem;
+    color: #718096;
+    background: #f7fafc;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding-top: 0;
+    transform: translateY(-0.5em);
+}
+
+.time-cell {
+    border-bottom: 1px solid #e2e8f0;
+    border-left: 1px solid #e2e8f0;
+    position: relative;
+    min-height: 60px;
+}
+
+/* モーダルのスタイル（既存のまま） */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -603,6 +763,36 @@ fetchSlots()
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     animation: slideIn 0.3s ease-out;
     z-index: 1000;
+}
+
+/* レッスン枠のスタイル */
+.lesson-slot {
+    position: absolute;
+    top: 0;
+    left: 4px;
+    right: 4px;
+    background: linear-gradient(135deg, #5dade2 0%, #48a9d8 100%);
+    border-radius: 8px;
+    padding: 0.5rem;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(93, 173, 226, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lesson-slot:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(93, 173, 226, 0.4);
+    background: linear-gradient(135deg, #4a9fd5 0%, #3d91c4 100%);
+}
+
+.slot-time-display {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: center;
 }
 
 @keyframes slideIn {
