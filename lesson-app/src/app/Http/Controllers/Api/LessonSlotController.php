@@ -186,7 +186,7 @@ class LessonSlotController extends Controller
             if ($request->has('start_time') || $request->has('duration')) {
                 // 新しい開始時刻と期間を取得（変更がなければ現在の値を使用）
                 $startTime = $request->start_time ?? $slot->start_time->format('H:i:s');
-                $duration = $request->duration ?? $slot->duration;
+                $duration = (int)($request->duration ?? $slot->duration);
 
                 // start_timeの形式を統一（H:i:s）
                 if (strlen($startTime) === 5) {
