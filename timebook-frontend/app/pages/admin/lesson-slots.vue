@@ -4,10 +4,12 @@
             <h1 class="title">レッスン枠管理</h1>
             <div class="button-group">
                 <button class="create-button" @click="showCreateModal = true">
-                    ➕ 新規作成
+                    <PlusIcon class="button-icon" />
+                    <span>新規作成</span>
                 </button>
                 <button class="bulk-create-button" @click="showBulkCreateModal = true">
-                    📅 一括作成
+                    <CalendarDaysIcon class="button-icon" />
+                    <span>一括作成</span>
                 </button>
             </div>
         </div>
@@ -66,14 +68,16 @@
                                                 class="edit-button"
                                                 @click="openEditModal(slot)"
                                             >
-                                                ✏️ 編集
+                                                <PencilSquareIcon class="button-icon" />
+                                                <span>編集</span>
                                             </button>
                                             <button
                                                 v-if="!slot.has_reservation"
                                                 class="delete-button"
                                                 @click="confirmDelete(slot)"
                                             >
-                                                🗑️ 削除
+                                                <TrashIcon class="button-icon" />
+                                                <span>削除</span>
                                             </button>
                                             <span v-else class="disabled-hint">予約済みのため操作不可</span>
                                         </div>
@@ -195,7 +199,10 @@
                     <form @submit.prevent="bulkCreateSlots">
                         <!-- 期間設定 -->
                         <div class="form-section">
-                            <h3 class="section-title">📅 期間設定</h3>
+                            <h3 class="section-title">
+                                <CalendarDaysIcon class="section-icon" />
+                                期間設定
+                            </h3>
 
                             <div class="form-row">
                                 <div class="form-group">
@@ -222,7 +229,10 @@
 
                         <!-- 曜日選択 -->
                         <div class="form-section">
-                            <h3 class="section-title">📆 曜日選択</h3>
+                            <h3 class="section-title">
+                                <CalendarDaysIcon class="section-icon" />
+                                曜日選択
+                            </h3>
                             <div class="weekdays-grid">
                                 <label v-for="(day, index) in ['日', '月', '火', '水', '木', '金', '土']" 
                                         :key="index"
@@ -239,7 +249,10 @@
 
                         <!-- 時間設定 -->
                         <div class="form-section">
-                            <h3 class="section-title">🕐 時間設定</h3>
+                            <h3 class="section-title">
+                                <ClockIcon class="section-icon" />
+                                時間設定
+                            </h3>
 
                             <div class="form-row">
                                 <div class="form-group">
@@ -296,6 +309,13 @@
 </template>
 
 <script setup lang="ts">
+import {
+    PlusIcon,
+    CalendarDaysIcon,
+    PencilSquareIcon,
+    TrashIcon,
+    ClockIcon
+} from '@heroicons/vue/24/outline'
 definePageMeta({
     middleware: 'auth'
 })
@@ -735,7 +755,15 @@ const formatTime = (timeString: string) => {
     gap: 1rem;
 }
 
+.button-icon {
+    width: 20px;
+    height: 20px;
+}
+
 .bulk-create-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     background: #ff9ac1;
     color: white;
     border: none;
@@ -753,6 +781,9 @@ const formatTime = (timeString: string) => {
 }
 
 .create-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     background: #5dade2;
     color: white;
     border: none;
@@ -921,6 +952,9 @@ tr:hover {
 
 .edit-button,
 .delete-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.5rem 1rem;
     border: none;
     border-radius: 6px;
@@ -1149,10 +1183,18 @@ tr:hover {
 }
 
 .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 1.1rem;
     font-weight: 700;
     color: #2d3748;
     margin-bottom: 1rem;
+}
+
+.section-icon {
+    width: 20px;
+    height: 20px;
 }
 
 .form-row {

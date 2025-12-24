@@ -2,7 +2,10 @@
     <div class="reservations-page">
         <div class="container">
             <!-- ページタイトル -->
-            <h1 class="page-title">📋 予約管理</h1>
+            <h1 class="page-title">
+                <ClipboardDocumentListIcon class="title-icon" />
+                <span>予約管理</span>
+            </h1>
 
             <!-- フィルター部分 -->
             <div class="filters">
@@ -23,7 +26,8 @@
                     </select>
                 </div>
                 <button @click="fetchReservations" class="filter-button">
-                    🔍 絞り込み
+                    <MagnifyingGlassIcon class="button-icon" />
+                    <span>絞り込み</span>
                 </button>
             </div>
 
@@ -87,6 +91,10 @@
 </template>
 
 <script setup lang="ts">
+import {
+    ClipboardDocumentListIcon,
+    MagnifyingGlassIcon
+} from '@heroicons/vue/24/outline'
 definePageMeta({
     middleware: 'auth'
 })
@@ -249,10 +257,18 @@ const formatDate = (date: Date) => {
 }
 
 .page-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
     color: #2d3748;
     font-size: 2rem;
     margin-bottom: 2rem;
-    text-align: center;
+}
+
+.title-icon {
+    width: 32px;
+    height: 32px;
 }
 
 /* フィルター部分 */
@@ -296,6 +312,9 @@ const formatDate = (date: Date) => {
 }
 
 .filter-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.5rem 1.5rem;
     background: #5dade2;
     color: white;
@@ -304,6 +323,11 @@ const formatDate = (date: Date) => {
     font-weight: 600;
     cursor: pointer;
     transition: background 0.3s ease;
+}
+
+.button-icon {
+    width: 20px;
+    height: 20px;
 }
 
 .filter-button:hover {
