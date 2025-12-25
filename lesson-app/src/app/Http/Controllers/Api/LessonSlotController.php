@@ -71,7 +71,7 @@ class LessonSlotController extends Controller
         $validator = Validator::make($request->all(), [
             'date' => 'required|date|after_or_equal:today',
             'start_time' => 'required|date_format:H:i',
-            'duration' => 'required|in:30,60',
+            'duration' => 'required|in:30,45,60',
         ]);
 
         if ($validator->fails()) {
@@ -88,14 +88,16 @@ class LessonSlotController extends Controller
             $startTime = Carbon::createFromFormat('H:i', $request->start_time);
             $endTime = $startTime->copy()->addMinutes($request->duration);
 
+            $startTimeStr = $request->start_time . ':00';
+
             // 重複チェック（同じ先生、同じ日、時間が重なる枠）
             $overlapping = LessonSlot::where('teacher_id', $request->user()->id)
                 ->whereDate('date', $request->date)
-                ->where(function ($q) use ($request, $endTime) {
+                ->where(function ($q) use ($startTimeStr, $endTime) {
                     // 既存の枠の開始 < 新しい枠の終了
                     // かつ 既存の枠の終了 > 新しい枠の開始
                     $q->whereTime('start_time', '<', $endTime->format('H:i:s'))
-                    ->whereTime('end_time', '>', $request->start_time);
+                    ->whereTime('end_time', '>', $startTimeStr);
                 })
                 ->exists();
 
@@ -143,7 +145,7 @@ class LessonSlotController extends Controller
         $validator = Validator::make($request->all(), [
             'date' => 'sometimes|date|after_or_equal:today',
             'start_time' => 'sometimes|date_format:H:i',
-            'duration' => 'sometimes|in:30,60',
+            'duration' => 'sometimes|in:30,45,60',
         ]);
 
         if ($validator->fails()) {
@@ -301,7 +303,7 @@ class LessonSlotController extends Controller
             'date' => 'required|date|after_or_equal:today',
             'slots' => 'required|array|min:1',
             'slots.*.start_time' => 'required|date_format:H:i',
-            'slots.*.duration' => 'required|in:30,60',
+            'slots.*.duration' => 'required|in:30,45,60',
         ]);
 
         if ($validator->fails()) {

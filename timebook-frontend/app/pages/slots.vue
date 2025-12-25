@@ -58,7 +58,8 @@
                                 v-if="getSlotForCell(date, timeSlot)"
                                 class="lesson-slot"
                                 :style="{
-                                    height: getSlotHeight(getSlotForCell(date, timeSlot).duration) + 'px'
+                                    height: getSlotHeight(getSlotForCell(date, timeSlot).duration) + 'px',
+                                    background: getDayGradient(date.getDay())
                                 }"
                                 @click="openModal(getSlotForCell(date, timeSlot))"
                             >
@@ -208,6 +209,20 @@ function nextWeek() {
     currentWeekStart.value = newDate
 }
 
+// 曜日ごとのグラデーション色を取得
+function getDayGradient(dayOfWeek) {
+    const colors = [
+        '#ff6b6b', // 日曜日 - 赤
+        '#ffeaa7', // 月曜日 - 黄色
+        '#96ceb4', // 火曜日 - 薄緑
+        '#4ecdc4', // 水曜日 - ターコイズ
+        '#45b7d1', // 木曜日 - 青
+        '#74b9ff', // 金曜日 - 明るい青
+        '#a29bfe', // 土曜日 - 紫
+    ]
+    return colors[dayOfWeek]
+}
+
 // 時間軸の生成（10:00 〜 20:00、30分刻み）
 const timeSlots = computed(() => {
     const slots = []
@@ -215,19 +230,19 @@ const timeSlots = computed(() => {
     const endHour = 21    // 終了時刻
 
     for (let hour = startHour; hour <= endHour; hour++) {
-        // 00分
-        slots.push({
-            hour: hour,
-            minute: 0,
-            label: `${String(hour).padStart(2, '0')}:00`
-        })
-
-        // 30分（最後の時間は30分を追加しない）
-        if (hour < endHour) {
+        // 0分, 15分, 30分, 45分を追加
+        const minutes = [0, 15, 30, 45]
+        
+        for (const minute of minutes) {
+            // 最後の時間（21:00）を超えたら終了
+            if (hour === endHour && minute > 0) {
+                break
+            }
+            
             slots.push({
                 hour: hour,
-                minute: 30,
-                label: `${String(hour).padStart(2, '0')}:30`
+                minute: minute,
+                label: `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
             })
         }
     }
@@ -344,7 +359,7 @@ function getSlotForCell(date, timeSlot) {
 function getSlotHeight(duration) {
     // 30分 = 1マス（60px）
     // 60分 = 2マス（120px）
-    return (duration / 30) * 60
+    return (duration / 15) * 30 - 4
 }
 
 // モーダルを開く
@@ -545,7 +560,7 @@ fetchSlots()
 .time-row {
     display: grid;
     grid-template-columns: 80px repeat(7, 1fr);
-    min-height: 60px;
+    min-height: 30px;
 }
 
 .time-label {
@@ -566,7 +581,7 @@ fetchSlots()
     border-bottom: 1px solid #e2e8f0;
     border-left: 1px solid #e2e8f0;
     position: relative;
-    min-height: 60px;
+    min-height: 30px;
 }
 
 /* モーダルのスタイル（既存のまま） */
@@ -768,31 +783,34 @@ fetchSlots()
 /* レッスン枠のスタイル */
 .lesson-slot {
     position: absolute;
-    top: 0;
-    left: 4px;
-    right: 4px;
-    background: linear-gradient(135deg, #5dade2 0%, #48a9d8 100%);
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
     border-radius: 8px;
     padding: 0.5rem;
     color: white;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 2px 4px rgba(93, 173, 226, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 10;
+    height: auto;
 }
 
 .lesson-slot:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(93, 173, 226, 0.4);
-    background: linear-gradient(135deg, #4a9fd5 0%, #3d91c4 100%);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    filter: brightness(1.1);
+    z-index: 20;
 }
 
 .slot-time-display {
     font-size: 0.875rem;
     font-weight: 600;
     text-align: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 @keyframes slideIn {

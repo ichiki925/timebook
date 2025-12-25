@@ -123,6 +123,7 @@
                             <select v-model="createForm.duration" required>
                                 <option value="">選択してください</option>
                                 <option value="30">30分</option>
+                                <option value="45">45分</option>
                                 <option value="60">60分</option>
                             </select>
                         </div>
@@ -172,6 +173,7 @@
                             <label>レッスン時間 <span class="required">*</span></label>
                             <select v-model="editForm.duration" required>
                                 <option value="30">30分</option>
+                                <option value="45">45分</option>
                                 <option value="60">60分</option>
                             </select>
                         </div>
@@ -278,6 +280,7 @@
                                 <label>レッスン時間 <span class="required">*</span></label>
                                 <select v-model="bulkCreateForm.duration" required>
                                     <option value="30">30分</option>
+                                    <option value="45">45分</option>
                                     <option value="60">60分</option>
                                 </select>
                             </div>
