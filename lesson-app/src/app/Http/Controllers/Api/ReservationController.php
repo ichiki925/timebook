@@ -131,7 +131,7 @@ class ReservationController extends Controller
             'student_name'   => ['required', 'string', 'max:255'],
             'student_email'  => ['required', 'email', 'max:255'],
             'student_phone'  => ['nullable', 'string', 'max:20'],
-            'course_type'    => ['required', 'in:30,60'],
+            'course_type'    => ['required', 'in:30,45,60'],
             'notes'          => ['nullable', 'string', 'max:1000'],
         ]);
 

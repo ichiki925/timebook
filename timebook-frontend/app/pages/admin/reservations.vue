@@ -44,6 +44,7 @@
                             <th>日時</th>
                             <th>生徒名</th>
                             <th>コース</th>
+                            <th>備考</th>
                             <th>ステータス</th>
                             <th>操作</th>
                         </tr>
@@ -53,6 +54,14 @@
                             <td>{{ formatDateTime(reservation) }}</td>
                             <td>{{ reservation.student_name }}</td>
                             <td>{{ reservation.course_type }}</td>
+                            <td 
+                                class="notes-cell" 
+                                :title="reservation.notes || ''"
+                                @click="showNotes(reservation.notes)"
+                                :style="reservation.notes ? 'cursor: pointer;' : ''"
+                            >
+                                {{ reservation.notes || '-' }}
+                            </td>
                             <td>
                                 <span 
                                     class="status-badge" 
@@ -225,6 +234,13 @@ const formatDate = (date: Date) => {
     const day = String(date.getDate()).padStart(2, '0')
     return `${year}-${month}-${day}`
 }
+
+// 備考の全文を表示する関数
+const showNotes = (notes?: string | null) => {
+    if (notes) {
+        alert(notes)
+    }
+}
 </script>
 
 <style scoped>
@@ -365,6 +381,17 @@ const formatDate = (date: Date) => {
     padding: 1rem;
     color: #333;
     vertical-align: middle;
+}
+
+.notes-cell {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notes-cell:hover {
+    text-decoration: underline;
 }
 
 /* ステータスバッジ */
