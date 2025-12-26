@@ -23,10 +23,15 @@
             <!-- カレンダー本体 -->
             <div class="calendar">
                 <!-- ヘッダー（曜日） -->
-                <div class="calendar-header">
+                <div
+                    class="calendar-header"
+                    :style="{
+                        gridTemplateColumns: `${isMobile ? '60px' : '80px'} repeat(${displayDates.length}, 1fr)`
+                    }"
+                >
                     <div class="time-column-header"></div>
                     <div
-                        v-for="(date, index) in weekDates"
+                        v-for="(date, index) in displayDates"
                         :key="index"
                         class="day-header"
                     >
@@ -41,7 +46,11 @@
                         v-for="(timeSlot, index) in timeSlots"
                         :key="timeSlot.label"
                         class="time-row"
+                        :style="{
+                            gridTemplateColumns: `${isMobile ? '60px' : '80px'} repeat(${displayDates.length}, 1fr)`
+                        }"
                     >
+
                         <!-- 時間ラベル -->
                         <div class="time-label">
                             {{ index > 0 && timeSlot.minute === 0 ? timeSlot.label : '' }}
@@ -49,7 +58,7 @@
 
                         <!-- 各曜日のセル -->
                         <div
-                            v-for="(date, dateIndex) in weekDates"
+                            v-for="(date, dateIndex) in displayDates"
                             :key="dateIndex"
                             class="time-cell"
                         >
@@ -164,7 +173,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted  } from 'vue'
 
 const slots = ref([])
 const loading = ref(true)
@@ -172,6 +181,25 @@ const error = ref(null)
 const successMessage = ref('')
 const reservationError = ref('')
 const currentWeekStart = ref(new Date())
+const isMobile = ref(false)
+
+// 画面サイズの監視
+function checkScreenSize() {
+    if (process.client) {
+        isMobile.value = window.innerWidth <= 640
+    }
+}
+
+onMounted(() => {
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+})
+
+onUnmounted(() => {
+    if (process.client) {
+        window.removeEventListener('resize', checkScreenSize)
+    }
+})
 
 // 週の開始日を月曜日に設定する関数
 function getMonday(date) {
@@ -195,17 +223,28 @@ const weekDates = computed(() => {
     return dates
 })
 
+// スマホ用：5日分だけ表示
+const displayDates = computed(() => {
+    if (isMobile.value) {
+        return weekDates.value.slice(0, 5)
+    }
+    return weekDates.value
+})
+
+
 // 前の週に移動
 function previousWeek() {
     const newDate = new Date(currentWeekStart.value)
-    newDate.setDate(newDate.getDate() - 7)
+    const days = isMobile.value ? 5 : 7
+    newDate.setDate(newDate.getDate() - days)
     currentWeekStart.value = newDate
 }
 
 // 次の週に移動
 function nextWeek() {
     const newDate = new Date(currentWeekStart.value)
-    newDate.setDate(newDate.getDate() + 7)
+    const days = isMobile.value ? 5 : 7
+    newDate.setDate(newDate.getDate() + days)
     currentWeekStart.value = newDate
 }
 
@@ -232,13 +271,13 @@ const timeSlots = computed(() => {
     for (let hour = startHour; hour <= endHour; hour++) {
         // 0分, 15分, 30分, 45分を追加
         const minutes = [0, 15, 30, 45]
-        
+
         for (const minute of minutes) {
             // 最後の時間（21:00）を超えたら終了
             if (hour === endHour && minute > 0) {
                 break
             }
-            
+
             slots.push({
                 hour: hour,
                 minute: minute,
@@ -311,9 +350,8 @@ function formatDate(dateString) {
 
 // 週の範囲を表示する関数
 function formatWeekRange() {
-    const start = weekDates.value[0]
-    const end = weekDates.value[6]
-
+    const start = displayDates.value[0]
+    const end = displayDates.value[displayDates.value.length - 1]
     return `${start.getMonth() + 1}月${start.getDate()}日 - ${end.getMonth() + 1}月${end.getDate()}日`
 }
 
@@ -463,10 +501,10 @@ fetchSlots()
 }
 
 .title {
-    font-size: 2rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: lighter;
     color: #1a202c;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 .loading, .error {
@@ -528,7 +566,6 @@ fetchSlots()
 /* ヘッダー（曜日） */
 .calendar-header {
     display: grid;
-    grid-template-columns: 80px repeat(7, 1fr);
     background: #f7fafc;
     border-bottom: 2px solid #e2e8f0;
 }
@@ -559,7 +596,6 @@ fetchSlots()
 
 .time-row {
     display: grid;
-    grid-template-columns: 80px repeat(7, 1fr);
     min-height: 30px;
 }
 
@@ -821,6 +857,53 @@ fetchSlots()
     to {
         transform: translateX(0);
         opacity: 1;
+    }
+}
+
+/* スマホ対応（640px以下） */
+@media (max-width: 640px) {
+    .day-header {
+        padding: 0.5rem 0.25rem;  /* ← この行を追加 */
+    }
+
+    .day-name {
+        font-size: 0.65rem;
+    }
+
+    .day-date {
+        font-size: 0.8rem;
+    }
+
+    .time-label {
+        font-size: 0.75rem;
+        padding: 0.25rem;
+    }
+
+    .slot-time-display {
+        font-size: 0.7rem;
+        line-height: 1.2;
+    }
+
+    .calendar-body {
+        max-height: none;
+    }
+
+    .container {
+        padding: 1rem;
+    }
+
+    .title {
+        font-size: 0.7rem;
+        margin-bottom: 1rem;
+    }
+
+    .nav-button {
+        padding: 0.5rem 0.5rem;
+        font-size: 0.6rem;
+    }
+
+    .week-info {
+        font-size: 1rem;
     }
 }
 </style>

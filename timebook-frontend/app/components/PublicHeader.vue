@@ -107,4 +107,47 @@ nav {
 .login-link:hover {
     background: rgba(255, 255, 255, 0.25);
 }
+
+/* スマホ対応（640px以下） */
+@media (max-width: 640px) {
+    .container {
+        flex-direction: column;
+        padding: 0.75rem 1rem;
+        gap: 0.75rem;
+    }
+
+    .logo a {
+        font-size: 1.25rem;
+    }
+
+    .logo-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    nav {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-around;
+        gap: 0.5rem;
+    }
+
+    .nav-link {
+        flex-direction: column;
+        padding: 0.5rem;
+        font-size: 0.75rem;
+        gap: 0.25rem;
+        flex: 1;
+        text-align: center;
+    }
+
+    .nav-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .login-link {
+        border: none;
+    }
+}
 </style>
