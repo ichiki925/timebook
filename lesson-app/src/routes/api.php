@@ -50,6 +50,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', [LessonSlotController::class, 'destroy']);
         Route::post('/bulk', [LessonSlotController::class, 'bulkStore']);
     });
+
+    // 管理者用: 予約管理
+    Route::get('/reservations', [ReservationController::class, 'index']);
+    Route::put('/reservations/{id}', [ReservationController::class, 'update']);
 });
 
 

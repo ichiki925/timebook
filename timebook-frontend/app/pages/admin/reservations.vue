@@ -146,15 +146,8 @@ const fetchReservations = async () => {
         }
 
         const url = `http://localhost/api/reservations?${params.toString()}`
-        const response = await fetchWithAuth(url)
-
-        if (response.ok) {
-            const data = await response.json()
-            reservations.value = data.data || []
-        } else {
-            console.error('予約の取得に失敗しました')
-            reservations.value = []
-        }
+        const data = await fetchWithAuth(url)
+        reservations.value = data.data || []
     } catch (error) {
         console.error('エラー:', error)
         reservations.value = []
@@ -170,20 +163,15 @@ const cancelReservation = async (id: number) => {
     }
 
     try {
-        const response = await fetchWithAuth(`http://localhost/api/reservations/${id}`, {
+        await fetchWithAuth(`http://localhost/api/reservations/${id}`, {
             method: 'PUT',
             body: JSON.stringify({
                 status: 'cancelled'
             })
         })
 
-        if (response.ok) {
-            alert('キャンセルしました')
-            // データを再取得
-            fetchReservations()
-        } else {
-            alert('キャンセルに失敗しました')
-        }
+        alert('キャンセルしました')
+        fetchReservations()
     } catch (error) {
         console.error('エラー:', error)
         alert('エラーが発生しました')
@@ -197,20 +185,15 @@ const restoreReservation = async (id: number) => {
     }
 
     try {
-        const response = await fetchWithAuth(`http://localhost/api/reservations/${id}`, {
+        await fetchWithAuth(`http://localhost/api/reservations/${id}`, {
             method: 'PUT',
             body: JSON.stringify({
                 status: 'confirmed'
             })
         })
 
-        if (response.ok) {
-            alert('復活しました')
-            // データを再取得
-            fetchReservations()
-        } else {
-            alert('復活に失敗しました')
-        }
+        alert('復活しました')
+        fetchReservations()
     } catch (error) {
         console.error('エラー:', error)
         alert('エラーが発生しました')
@@ -222,11 +205,12 @@ const formatDateTime = (reservation: any) => {
     const slot = reservation.lesson_slot
     if (!slot) return '-'
 
-    const date = slot.date  // "2025-12-25"
-    const startTime = slot.start_time.split('T')[1]?.substring(0, 5) || slot.start_time.substring(0, 5)
-    const endTime = slot.end_time.split('T')[1]?.substring(0, 5) || slot.end_time.substring(0, 5)
+    const dateStr = slot.date.split('T')[0]
+    const [year, month, day] = dateStr.split('-')
+    const startTime = slot.start_time
+    const endTime = slot.end_time
 
-    return `${date} ${startTime}-${endTime}`
+    return `${year}年${parseInt(month)}月${parseInt(day)}日 ${startTime}-${endTime}`
 }
 
 // ステータスのテキストを返す関数

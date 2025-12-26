@@ -14,6 +14,64 @@ use Illuminate\Support\Facades\Mail;
 class ReservationController extends Controller
 {
     /**
+     * 管理者用: 予約一覧を取得
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index(Request $request)
+    {
+        // 1. バリデーション
+        $validated = $request->validate([
+            'start_date' => ['nullable', 'date'],
+            'end_date'   => ['nullable', 'date', 'after_or_equal:start_date'],
+            'status'     => ['nullable', 'in:all,pending,confirmed,cancelled'],
+            'search'     => ['nullable', 'string', 'max:255'],
+        ]);
+
+        // 2. ベースクエリ（認証ユーザーの先生IDに関連する予約のみ）
+        $query = Reservation::query()
+            ->with(['lessonSlot', 'lessonSlot.teacher'])
+            ->whereHas('lessonSlot', function ($q) use ($request) {
+                $q->where('teacher_id', $request->user()->id);
+            });
+
+        // 3. 日付範囲でフィルタリング
+        if (!empty($validated['start_date'])) {
+            $query->whereHas('lessonSlot', function ($q) use ($validated) {
+                $q->whereDate('date', '>=', $validated['start_date']);
+            });
+        }
+
+        if (!empty($validated['end_date'])) {
+            $query->whereHas('lessonSlot', function ($q) use ($validated) {
+                $q->whereDate('date', '<=', $validated['end_date']);
+            });
+        }
+
+        // 4. ステータスでフィルタリング
+        if (!empty($validated['status']) && $validated['status'] !== 'all') {
+            $query->where('status', $validated['status']);
+        }
+
+        // 5. 生徒名・メールで検索
+        if (!empty($validated['search'])) {
+            $search = $validated['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('student_name', 'like', "%{$search}%")
+                ->orWhere('student_email', 'like', "%{$search}%");
+            });
+        }
+
+        // 6. 並び順（新しい順）
+        $reservations = $query
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        // 7. レスポンス
+        return response()->json($reservations);
+    }
+    /**
      * 利用可能なレッスン枠一覧を取得
      *
      * @param Request $request
@@ -167,6 +225,65 @@ class ReservationController extends Controller
         return response()->json([
             'data' => $reservation,
         ]);
+    }
+
+    /**
+     * 管理者用: 予約ステータスを更新
+     *
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request, $id)
+    {
+        // 1. バリデーション
+        $validated = $request->validate([
+            'status' => ['required', 'in:confirmed,cancelled'],
+        ]);
+
+        // 2. 予約を取得
+        $reservation = Reservation::with('lessonSlot')->findOrFail($id);
+
+        // 3. 認証ユーザーの予約かチェック
+        if ($reservation->lessonSlot->teacher_id !== $request->user()->id) {
+            return response()->json([
+                'message' => '権限がありません。',
+            ], 403);
+        }
+
+        // 4. トランザクション開始
+        try {
+            DB::beginTransaction();
+
+            $oldStatus = $reservation->status;
+            $newStatus = $validated['status'];
+
+            // ステータスを更新
+            $reservation->update(['status' => $newStatus]);
+
+            // レッスン枠の availability を更新
+            if ($oldStatus === 'confirmed' && $newStatus === 'cancelled') {
+                // 確定→キャンセル: 枠を利用可能に
+                $reservation->lessonSlot->update(['is_available' => true]);
+            } elseif ($oldStatus === 'cancelled' && $newStatus === 'confirmed') {
+                // キャンセル→確定: 枠を利用不可に
+                $reservation->lessonSlot->update(['is_available' => false]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'ステータスを更新しました。',
+                'data' => $reservation,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => '更新処理中にエラーが発生しました。',
+            ], 500);
+        }
     }
 
     /**
