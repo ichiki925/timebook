@@ -501,7 +501,7 @@ fetchSlots()
 }
 
 .title {
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: lighter;
     color: #1a202c;
     margin-bottom: 1.5rem;
@@ -904,6 +904,12 @@ fetchSlots()
 
     .week-info {
         font-size: 1rem;
+    }
+
+    .cancel-button,
+    .submit-button {
+        font-size: 0.875rem;
+        padding: 0.65rem 1rem;
     }
 }
 </style>

@@ -307,8 +307,8 @@ function getStatusText(status) {
 }
 
 .title {
-    font-size: 2rem;
-    font-weight: 700;
+    font-size: 1.1rem;
+    font-weight: lighter;
     color: #1a202c;
     margin-bottom: 2rem;
 }
@@ -552,8 +552,8 @@ function getStatusText(status) {
 }
 
 .modal-header h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.1rem;
+    font-weight: lighter;
     color: #2d3748;
     margin: 0;
 }
@@ -686,6 +686,73 @@ function getStatusText(status) {
     to {
         transform: translateX(0);
         opacity: 1;
+    }
+}
+
+/* 既存のスタイルの最後に追加 */
+
+/* スマホ対応（640px以下） */
+@media (max-width: 640px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .title {
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .search-section {
+        padding: 1.5rem 1rem;
+    }
+
+    .input-group {
+        flex-direction: column;  /* 横並び → 縦並び */
+        gap: 0.75rem;
+    }
+
+    .input-group input {
+        width: 100%;
+    }
+
+    .search-button {
+        width: 100%;  /* ボタンを全幅に */
+        padding: 0.75rem;
+    }
+
+    .reservation-header {
+        padding-right: 0;
+        margin-bottom: 1rem;
+    }
+
+    .status-badge {
+        position: static;  /* 絶対配置を解除 */
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+
+    .reservation-header h3 {
+        font-size: 1.25rem;
+    }
+
+    .reservation-header .time {
+        font-size: 1rem;
+    }
+
+    .detail-row {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .detail-row .label {
+        min-width: auto;
+        font-size: 0.875rem;
+    }
+
+    .keep-button,
+    .confirm-cancel-button {
+        font-size: 0.875rem;
+        padding: 0.65rem 1rem;
     }
 }
 </style>

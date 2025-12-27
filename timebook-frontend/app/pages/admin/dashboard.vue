@@ -145,9 +145,14 @@ const loadDashboardData = async () => {
 }
 
 // 時刻をフォーマット (HH:MM:SS → HH:MM)
-const formatTime = (time: string) => {
-    if (!time) return ''
-    return time.substring(0, 5)
+const formatTime = (datetime: string) => {
+    if (!datetime) return ''
+
+    const timePart = datetime.includes('T')
+        ? datetime.split('T')[1]
+        : datetime.split(' ')[1]
+
+    return timePart ? timePart.substring(0, 5) : ''
 }
 </script>
 
@@ -165,10 +170,10 @@ const formatTime = (time: string) => {
 }
 
 .title {
-    font-size: 2rem;
-    font-weight: 700;
+    font-size: 1.1rem;
+    font-weight: lighter;
     color: #1a202c;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .welcome {

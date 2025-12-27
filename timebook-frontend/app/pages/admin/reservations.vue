@@ -262,13 +262,13 @@ const showNotes = (notes?: string | null) => {
     justify-content: center;
     gap: 0.5rem;
     color: #2d3748;
-    font-size: 2rem;
+    font-size: 1.1rem;
     margin-bottom: 2rem;
 }
 
 .title-icon {
-    width: 32px;
-    height: 32px;
+    width: 25px;
+    height: 25px;
 }
 
 /* フィルター部分 */

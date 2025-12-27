@@ -3,7 +3,10 @@
         <div class="login-container">
             <div class="login-card">
                 <div class="login-header">
-                    <h1>🎹 TimeBook</h1>
+                    <h1>
+                        <MusicalNoteIcon class="title-icon" />
+                        TimeBook
+                    </h1>
                     <p>管理画面ログイン</p>
                 </div>
 
@@ -50,6 +53,7 @@
 </template>
 
 <script setup lang="ts">
+import { MusicalNoteIcon } from '@heroicons/vue/24/outline'
 const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
@@ -108,6 +112,16 @@ const handleLogin = async () => {
     font-size: 2rem;
     color: #5dade2;
     margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.title-icon {
+    width: 2rem;
+    height: 2rem;
+    color: #5dade2;
 }
 
 .login-header p {

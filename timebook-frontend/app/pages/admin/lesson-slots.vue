@@ -756,8 +756,8 @@ const formatTime = (timeString: string) => {
 }
 
 .title {
-    font-size: 2rem;
-    font-weight: 700;
+    font-size: 1.1rem;
+    font-weight: lighter;
     color: #1a202c;
 }
 
