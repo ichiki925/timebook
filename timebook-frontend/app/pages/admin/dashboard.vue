@@ -178,7 +178,8 @@ const formatTime = (datetime: string) => {
 
 .welcome {
     color: #718096;
-    font-size: 1.1rem;
+    font-size: 0.9rem;
+    font-weight: 300;
 }
 
 .loading {
@@ -207,6 +208,7 @@ const formatTime = (datetime: string) => {
     padding: 1rem;
     border-radius: 8px;
     border: 2px solid #feb2b2;
+    font-size: 0.875rem;
 }
 
 /* 統計カード */
@@ -250,13 +252,14 @@ const formatTime = (datetime: string) => {
 
 .stat-label {
     color: #718096;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
+    font-weight: 400;
     margin-bottom: 0.25rem;
 }
 
 .stat-value {
-    font-size: 2rem;
-    font-weight: 700;
+    font-size: 1.5rem;
+    font-weight: 600;
     color: #2d3748;
 }
 
@@ -269,8 +272,8 @@ const formatTime = (datetime: string) => {
 }
 
 .section-title {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 600;
     color: #2d3748;
     padding: 1.5rem;
     border-bottom: 2px solid #e2e8f0;
@@ -281,6 +284,7 @@ const formatTime = (datetime: string) => {
     padding: 3rem;
     text-align: center;
     color: #a0aec0;
+    font-size: 0.9rem;
 }
 
 .reservation-list {
@@ -324,7 +328,8 @@ const formatTime = (datetime: string) => {
 }
 
 .student-name {
-    font-weight: 600;
+    font-weight: 500;
+    font-size: 0.95rem;
     color: #2d3748;
     margin-bottom: 0.25rem;
 }
@@ -355,18 +360,40 @@ const formatTime = (datetime: string) => {
         padding: 1rem;
     }
 
+    .title {
+        font-size: 0.9rem;
+    }
+
+    .welcome {
+        font-size: 0.8rem;
+    }
+
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        padding: 1rem;
     }
 
     .reservation-card {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
+        padding: 1rem;
     }
 
     .lesson-time {
         text-align: left;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+    }
+
+    .stat-value {
+        font-size: 1.3rem;
     }
 }
 </style>

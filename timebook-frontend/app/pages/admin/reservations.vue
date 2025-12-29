@@ -53,9 +53,9 @@
                         <tr v-for="reservation in reservations" :key="reservation.id">
                             <td>{{ formatDateTime(reservation) }}</td>
                             <td>{{ reservation.student_name }}</td>
-                            <td>{{ reservation.course_type }}</td>
-                            <td 
-                                class="notes-cell" 
+                            <td>{{ reservation.lesson_slot?.duration }}分</td>
+                            <td
+                                class="notes-cell"
                                 :title="reservation.notes || ''"
                                 @click="showNotes(reservation.notes)"
                                 :style="reservation.notes ? 'cursor: pointer;' : ''"
@@ -63,22 +63,22 @@
                                 {{ reservation.notes || '-' }}
                             </td>
                             <td>
-                                <span 
-                                    class="status-badge" 
+                                <span
+                                    class="status-badge"
                                     :class="reservation.status"
                                 >
                                     {{ getStatusText(reservation.status) }}
                                 </span>
                             </td>
                             <td>
-                                <button 
+                                <button
                                     v-if="reservation.status === 'confirmed'"
                                     @click="cancelReservation(reservation.id)"
                                     class="cancel-button"
                                 >
                                     キャンセル
                                 </button>
-                                <button 
+                                <button
                                     v-else
                                     @click="restoreReservation(reservation.id)"
                                     class="restore-button"
@@ -452,10 +452,86 @@ const showNotes = (notes?: string | null) => {
     font-size: 1.1rem;
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+    .reservations-page {
+        padding: 1rem 0;
+    }
+
+    .container {
+        padding: 0 0.75rem;
+    }
+
+    .page-title {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .title-icon {
+        width: 22px;
+        height: 22px;
+    }
+
+    .filters {
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+
+    .filter-group label {
+        font-size: 0.8rem;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        padding: 0.4rem;
+        font-size: 0.9rem;
+    }
+
+    .filter-button {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .button-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .reservations-table th,
+    .reservations-table td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .cancel-button,
+    .restore-button {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .reservations-page {
+        padding: 1rem 0;
+    }
+
+    .container {
+        padding: 0 1rem;
+    }
+
+    .page-title {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .title-icon {
+        width: 22px;
+        height: 22px;
+    }
+
     .filters {
         flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
     }
 
     .filter-group {
@@ -464,14 +540,92 @@ const showNotes = (notes?: string | null) => {
 
     .filter-button {
         width: 100%;
+        justify-content: center;
     }
 
     .table-container {
-        overflow-x: auto;
+        overflow-x: visible;
+        padding: 1rem;
     }
 
     .reservations-table {
-        min-width: 600px;
+        display: block;
+        min-width: auto;
+    }
+
+    .reservations-table thead {
+        display: none;
+    }
+
+    .reservations-table tbody {
+        display: block;
+    }
+
+    .reservations-table tbody tr {
+        display: block;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .reservations-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .reservations-table tbody tr:hover {
+        background: transparent;
+    }
+
+    .reservations-table td {
+        display: block;
+        padding: 0.4rem 0;
+        border: none;
+        text-align: left !important;
+    }
+
+    .reservations-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #4a5568;
+        display: inline-block;
+        min-width: 90px;
+    }
+
+    .reservations-table td:nth-child(1)::before {
+        content: "日時: ";
+    }
+
+    .reservations-table td:nth-child(2)::before {
+        content: "生徒名: ";
+    }
+
+    .reservations-table td:nth-child(3)::before {
+        content: "コース: ";
+    }
+
+    .reservations-table td:nth-child(4)::before {
+        content: "備考: ";
+    }
+
+    .reservations-table td:nth-child(5)::before {
+        content: "ステータス: ";
+    }
+
+    .reservations-table td:nth-child(6)::before {
+        content: "操作: ";
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .notes-cell {
+        max-width: none;
+        white-space: normal;
+    }
+
+    .cancel-button,
+    .restore-button {
+        width: 100%;
+        justify-content: center;
+        margin-top: 0.5rem;
     }
 }
 </style>

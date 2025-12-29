@@ -1266,4 +1266,195 @@ tr:hover {
         opacity: 1;
     }
 }
+
+/* 既存のスタイルの後に追加 */
+
+/* タブレット対応（641px〜900px） */
+@media (max-width: 900px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .title {
+        font-size: 1.25rem;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .button-group {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .create-button,
+    .bulk-create-button {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .button-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .date-header {
+        font-size: 1.1rem;
+        padding: 0.75rem 1rem;
+    }
+
+    th, td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    th.col-time {
+        width: 30%;
+    }
+
+    th.col-duration {
+        width: 15%;
+    }
+
+    th.col-status {
+        width: 20%;
+    }
+
+    th.col-actions {
+        width: 35%;
+    }
+
+    .edit-button,
+    .delete-button {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    .disabled-hint {
+        font-size: 0.75rem;
+    }
+}
+
+/* スマホ対応（640px以下） */
+@media (max-width: 640px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .title {
+        font-size: 1.1rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.5rem;
+    }
+
+    .create-button,
+    .bulk-create-button {
+        width: 100%;
+        justify-content: center;
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .date-group {
+        padding: 0 1rem 1rem 1rem;  /* 追加: 左右に余白 */
+    }
+
+    .date-header {
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+        margin: 0 -1rem;  /* 追加: ヘッダーは端まで広げる */
+    }
+
+    /* テーブルをカード形式に変更 */
+    .slots-table {
+        overflow-x: visible;
+    }
+
+    table {
+        display: block;
+    }
+
+    thead {
+        display: none;
+    }
+
+    tbody {
+        display: block;
+    }
+
+    tr {
+        display: block;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    tr:last-child {
+        border-bottom: none;
+    }
+
+    tr:hover {
+        background: transparent;
+    }
+
+    td {
+        display: block;
+        padding: 0.4rem 0;
+        border: none;
+        text-align: left !important;
+    }
+
+    td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #4a5568;
+        display: inline-block;
+        width: 90px;
+    }
+
+    .time::before {
+        content: "時間: ";
+    }
+
+    td:nth-child(2)::before {
+        content: "レッスン時間: ";
+    }
+
+    td:nth-child(3)::before {
+        content: "予約状況: ";
+    }
+
+    td:nth-child(4)::before {
+        content: "操作: ";
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .actions-inner {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .edit-button,
+    .delete-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .date-header {
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .status {
+        display: inline-block;
+        margin-left: 0;
+    }
+}
 </style>

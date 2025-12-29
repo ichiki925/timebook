@@ -862,8 +862,22 @@ fetchSlots()
 
 /* スマホ対応（640px以下） */
 @media (max-width: 640px) {
+    .week-navigation {
+        margin-bottom: 1rem;
+        padding: 0.75rem 0.5rem;
+    }
+
+    .nav-button {
+        padding: 0.5rem 0.5rem;
+        font-size: 0.6rem;
+    }
+
+    .week-info {
+        font-size: 1rem;
+    }
+
     .day-header {
-        padding: 0.5rem 0.25rem;  /* ← この行を追加 */
+        padding: 0.5rem 0.25rem;
     }
 
     .day-name {
@@ -884,10 +898,6 @@ fetchSlots()
         line-height: 1.2;
     }
 
-    .calendar-body {
-        max-height: none;
-    }
-
     .container {
         padding: 1rem;
     }
@@ -895,15 +905,6 @@ fetchSlots()
     .title {
         font-size: 0.7rem;
         margin-bottom: 1rem;
-    }
-
-    .nav-button {
-        padding: 0.5rem 0.5rem;
-        font-size: 0.6rem;
-    }
-
-    .week-info {
-        font-size: 1rem;
     }
 
     .cancel-button,

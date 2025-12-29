@@ -39,11 +39,11 @@
 
 <script setup lang="ts">
 import {
-  MusicalNoteIcon,           // 🎹 ロゴ
-  ChartBarIcon,              // 📊 ダッシュボード
-  CalendarDaysIcon,          // 📅 レッスン枠管理
-  ClipboardDocumentListIcon, // 📋 予約管理
-  ArrowRightStartOnRectangleIcon  // 🚪 ログアウト
+    MusicalNoteIcon,
+    ChartBarIcon,
+    CalendarDaysIcon,
+    ClipboardDocumentListIcon,
+    ArrowRightStartOnRectangleIcon
 } from '@heroicons/vue/24/outline'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -151,8 +151,6 @@ nav {
     height: 20px;
 }
 
-
-/* ここから新しい部分！ */
 .user-info {
     display: flex;
     align-items: center;
@@ -184,4 +182,110 @@ nav {
 .logout-button:hover {
     background: rgba(255, 255, 255, 0.25);
 }
+
+@media (max-width: 900px) {
+    .container {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .logo a {
+        font-size: 1.2rem;
+    }
+
+    .logo-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    nav {
+        gap: 0.4rem;
+    }
+
+    .nav-link {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.75rem;
+        gap: 0.25rem;
+    }
+
+    .nav-icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .user-info {
+        gap: 0.4rem;
+        padding-left: 0.75rem;
+    }
+
+    .teacher-name {
+        font-size: 0.75rem;
+    }
+
+    .logout-button {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.75rem;
+        gap: 0.25rem;
+    }
+}
+
+
+@media (max-width: 640px) {
+    .container {
+        flex-direction: column;
+        padding: 0.75rem 1rem;
+        gap: 0.75rem;
+    }
+
+    .logo a {
+        font-size: 1.25rem;
+    }
+
+    .logo-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    nav {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-around;
+        gap: 0.5rem;
+    }
+
+    .nav-link {
+        flex-direction: column;
+        padding: 0.5rem;
+        font-size: 0.6rem;
+        gap: 0.25rem;
+        flex: 1;
+        text-align: center;
+    }
+
+    .nav-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .user-info {
+        border-left: none;
+        padding-left: 0;
+        gap: 0;
+        flex: 1;
+    }
+
+    .teacher-name {
+        display: none;
+    }
+
+    .logout-button {
+        width: 100%;
+        justify-content: center;
+        flex-direction: column;
+        padding: 0.5rem;
+        font-size: 0.6rem;
+        gap: 0.25rem;
+        border: none;
+    }
+}
+
 </style>
