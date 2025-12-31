@@ -175,6 +175,8 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted  } from 'vue'
 
+const config = useRuntimeConfig()
+const apiBaseUrl = config.public.apiBaseUrl
 const slots = ref([])
 const loading = ref(true)
 const error = ref(null)
@@ -427,7 +429,7 @@ async function submitReservation() {
     submitting.value = true
 
     try {
-        const response = await fetch('http://localhost/api/reservations/', {
+        const response = await fetch(`${apiBaseUrl}/reservations/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -475,7 +477,7 @@ async function submitReservation() {
 async function fetchSlots() {
     try {
         loading.value = true
-        const response = await fetch('http://localhost/api/reservations/available-slots?teacher_id=1')
+        const response = await fetch(`${apiBaseUrl}/reservations/available-slots?teacher_id=1`)
         const data = await response.json()
         // 各slotにreservingフラグを追加
         slots.value = data.data.map(slot => ({
