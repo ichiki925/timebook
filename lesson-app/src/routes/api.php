@@ -6,34 +6,33 @@ use App\Http\Controllers\Api\ReservationController;
 use App\Http\Controllers\Api\LessonSlotController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\StudentAuthController;
+use App\Http\Controllers\Api\StudentReservationController;
 
-// 生徒側: 予約関連API
-Route::prefix('reservations')->group(function () {
-    // 利用可能なレッスン枠一覧を取得
-    Route::get('available-slots', [ReservationController::class, 'getAvailableSlots']);
 
-    // 予約を作成
-    Route::post('/', [ReservationController::class, 'store']);
+// レッスン枠一覧を取得（ログイン前でも見れる必要がある）
+Route::get('reservations/available-slots', [ReservationController::class, 'getAvailableSlots']);
 
-    // 予約詳細を取得
-    Route::get('/{id}', [ReservationController::class, 'show']);
-
-    // 予約をキャンセル（キャンセルトークン使用）
-    Route::post('cancel/{cancelToken}', [ReservationController::class, 'cancel']);
-
-    // 生徒の予約履歴を取得
-    Route::get('student/history', [ReservationController::class, 'getStudentReservations']);
-});
-
+// 管理者用認証API
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
+// 生徒会員用認証API
+Route::post('/student/register', [StudentAuthController::class, 'register']);
+Route::post('/student/login', [StudentAuthController::class, 'login']);
+
 // 認証が必要なエンドポイント
 Route::middleware('auth:sanctum')->group(function () {
+
+    // 管理者用
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+
+    // 生徒会員用
+    Route::post('/student/logout', [StudentAuthController::class, 'logout']);
+    Route::get('/student/user', [StudentAuthController::class, 'user']);
 
     Route::prefix('dashboard')->group(function () {
         Route::get('/today-reservations', [DashboardController::class, 'getTodayReservations']);
@@ -53,7 +52,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // 管理者用: 予約管理
     Route::get('/reservations', [ReservationController::class, 'index']);
+    Route::get('/reservations/{id}', [ReservationController::class, 'show']);
     Route::put('/reservations/{id}', [ReservationController::class, 'update']);
+
+    Route::prefix('student')->group(function () {
+        Route::get('/reservations', [StudentReservationController::class, 'index']);
+        Route::post('/reservations', [StudentReservationController::class, 'store']); // ← 会員のみ予約可能
+        Route::get('/reservations/{id}', [StudentReservationController::class, 'show']);
+        Route::delete('/reservations/{id}', [StudentReservationController::class, 'destroy']);
+    });
 });
 
 
