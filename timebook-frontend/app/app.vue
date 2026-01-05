@@ -24,7 +24,11 @@ const route = useRoute()
 const { restoreAuth } = useAuth()
 
 // ログインページかどうかを判定
-const isLoginPage = computed(() => route.path === '/login')
+const isLoginPage = computed(() =>
+  route.path === '/login' ||
+  route.path === '/register' ||
+  route.path === '/admin/login'
+)
 
 // 管理者ページかどうかを判定（新しく追加）
 const isAdminPage = computed(() => route.path.startsWith('/admin'))

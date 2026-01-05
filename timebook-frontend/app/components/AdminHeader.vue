@@ -79,7 +79,7 @@ const handleLogout = () => {
         localStorage.removeItem('teacher')
 
         // ログインページへ移動
-        router.push('/login')
+        router.push('/admin/login')
     }
 }
 </script>

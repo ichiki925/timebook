@@ -2,29 +2,6 @@
     <div class="container">
         <h1 class="title">予約履歴</h1>
 
-        <!-- メールアドレス入力フォーム -->
-        <div class="search-section">
-            <div class="search-form">
-                <label for="email">メールアドレスを入力してください</label>
-                <div class="input-group">
-                    <input 
-                        id="email"
-                        v-model="searchEmail"
-                        type="email"
-                        placeholder="example@email.com"
-                        @keyup.enter="fetchReservations"
-                    >
-                    <button 
-                        @click="fetchReservations"
-                        :disabled="loading || !searchEmail"
-                        class="search-button"
-                    >
-                        {{ loading ? '検索中...' : '予約を確認' }}
-                    </button>
-                </div>
-            </div>
-        </div>
-
         <!-- ローディング -->
         <div v-if="loading" class="loading">
             <p>読み込み中...</p>
@@ -37,27 +14,20 @@
 
         <!-- 予約一覧 -->
         <div v-else-if="reservations.length > 0" class="reservations-section">
-            <p class="result-count">{{ reservations.length }}件の予約が見つかりました</p>
+            <p class="result-count">{{ reservations.length }}件の予約があります</p>
 
             <div class="reservations-list">
                 <div
                     v-for="reservation in reservations"
                     :key="reservation.id"
                     class="reservation-card"
-                    :class="{'cancelled': reservation.status === 'cancelled'}"
                 >
-                    <!-- ステータスバッジ -->
-                    <div class="status-badge" :class="reservation.status">
-                        {{ getStatusText(reservation.status) }}
-                    </div>
-
                     <!-- 日付と時間 -->
                     <div class="reservation-header">
-                        <h3>{{ formatDate(reservation.lesson_slot.date) }}</h3>
+                        <h3>{{ formatDate(reservation.lesson_date) }}</h3>
                         <p class="time">
-                            {{ reservation.lesson_slot.start_time.substring(0, 5) }} -
-                            {{ reservation.lesson_slot.end_time.substring(0, 5) }}
-                            （{{ reservation.lesson_slot.duration }}分）
+                            {{ reservation.start_time.substring(0, 5) }} -
+                            {{ reservation.end_time.substring(0, 5) }}
                         </p>
                     </div>
 
@@ -71,10 +41,6 @@
                             <span class="label">メールアドレス:</span>
                             <span>{{ reservation.student_email }}</span>
                         </div>
-                        <div v-if="reservation.student_phone" class="detail-row">
-                            <span class="label">電話番号:</span>
-                            <span>{{ reservation.student_phone }}</span>
-                        </div>
                         <div v-if="reservation.notes" class="detail-row">
                             <span class="label">備考:</span>
                             <span>{{ reservation.notes }}</span>
@@ -85,7 +51,7 @@
                         </div>
                     </div>
                     <!-- キャンセルボタン（confirmed状態の予約のみ表示） -->
-                    <div v-if="reservation.status === 'confirmed'" class="card-actions">
+                    <div class="card-actions">
                         <button
                             class="cancel-button"
                             @click="openCancelModal(reservation)"
@@ -98,8 +64,9 @@
         </div>
 
         <!-- 予約がない場合 -->
-        <div v-else-if="searched" class="no-reservations">
-            <p>予約が見つかりませんでした。</p>
+        <div v-else class="no-reservations">
+            <p>まだ予約がありません。</p>
+            <NuxtLink to="/" class="link-button">レッスン枠を見る</NuxtLink>
         </div>
 
         <!-- キャンセル確認モーダル -->
@@ -115,8 +82,8 @@
                     </div>
 
                     <div class="cancel-info">
-                        <p><strong>{{ formatDate(selectedReservation.lesson_slot.date) }}</strong></p>
-                        <p>{{ selectedReservation.lesson_slot.start_time.substring(0, 5) }} - {{ selectedReservation.lesson_slot.end_time.substring(0, 5) }}</p>
+                        <p><strong>{{ formatDate(selectedReservation.lesson_date) }}</strong></p>
+                        <p>{{ selectedReservation.start_time.substring(0, 5) }} - {{ selectedReservation.end_time.substring(0, 5) }}</p>
                     </div>
                     <div class="modal-footer">
                         <button
@@ -151,13 +118,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useStudentAuth } from '~/composables/useStudentAuth'
+import { useStudentReservation } from '~/composables/useStudentReservation'
 
-const searchEmail = ref('')
+const { requireAuth } = useStudentAuth()
+const { fetchMyReservations, cancelReservation } = useStudentReservation()
 const reservations = ref([])
 const loading = ref(false)
 const error = ref(null)
-const searched = ref(false)
+
 
 // キャンセル関連の状態
 const showCancelModal = ref(false)
@@ -166,34 +136,30 @@ const cancelling = ref(false)
 const successMessage = ref('')
 const cancelError = ref('')
 
+// ページ読み込み時に実行
+onMounted(async () => {
+    // ログインチェック
+    const isAuthenticated = await requireAuth()
+    if (!isAuthenticated) return
+
+    // 予約履歴を取得
+    await loadReservations()
+})
 
 // 予約一覧を取得
-async function fetchReservations() {
-    if (!searchEmail.value) {
-        return
+async function loadReservations() {
+    loading.value = true
+    error.value = null
+
+    const result = await fetchMyReservations()
+
+    if (result.success) {
+        reservations.value = result.reservations
+    } else {
+        error.value = result.error
     }
 
-    try {
-        loading.value = true
-        error.value = null
-        searched.value = true
-
-        const response = await fetch(
-            `http://localhost/api/reservations/student/history?student_email=${encodeURIComponent(searchEmail.value)}`
-        )
-
-        const data = await response.json()
-
-        if (response.ok) {
-            reservations.value = data.data
-        } else {
-            error.value = data.message || '予約の取得に失敗しました'
-        }
-    } catch (err) {
-        error.value = '通信エラーが発生しました: ' + err.message
-    } finally {
-        loading.value = false
-    }
+    loading.value = false
 }
 
 // キャンセルモーダルを開く
@@ -218,46 +184,28 @@ async function confirmCancel() {
     successMessage.value = ''
     cancelError.value = ''
 
-    try {
-        const response = await fetch(
-            `http://localhost/api/reservations/cancel/${selectedReservation.value.cancel_token}`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            }
-        )
+    const result = await cancelReservation(selectedReservation.value.id)
 
-        const data = await response.json()
+    if (result.success) {
+        successMessage.value = result.message
 
-        if (response.ok) {
-            successMessage.value = 'キャンセルが完了しました'
+        setTimeout(() => {
+            successMessage.value = ''
+        }, 5000)
 
-            setTimeout(() => {
-                successMessage.value = ''
-            }, 5000)
+        closeCancelModal()
 
-            closeCancelModal()
-
-            // 予約一覧を再取得
-            await fetchReservations()
-        } else {
-            cancelError.value = data.message || 'キャンセルに失敗しました'
-
-            setTimeout(() => {
-                cancelError.value = ''
-            }, 5000)
-        }
-    } catch (err) {
-        cancelError.value = '通信エラーが発生しました: ' + err.message
+        // 予約一覧を再取得
+        await loadReservations()
+    } else {
+        cancelError.value = result.error
 
         setTimeout(() => {
             cancelError.value = ''
         }, 5000)
-    } finally {
-        cancelling.value = false
     }
+
+    cancelling.value = false
 }
 
 
@@ -286,16 +234,6 @@ function formatDateTime(dateTimeString) {
     return `${year}年${month}月${day}日 ${hours}:${minutes}`
 }
 
-// ステータスのテキストを取得
-function getStatusText(status) {
-    const statusMap = {
-        'confirmed': '予約確定',
-        'pending': '予約待ち',
-        'cancelled': 'キャンセル済み',
-        'completed': '完了'
-    }
-    return statusMap[status] || status
-}
 </script>
 
 <style scoped>
@@ -313,64 +251,6 @@ function getStatusText(status) {
     margin-bottom: 2rem;
 }
 
-.search-section {
-    background: white;
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-}
-
-.search-form label {
-    display: block;
-    font-weight: 600;
-    color: #2d3748;
-    margin-bottom: 0.75rem;
-}
-
-.input-group {
-    display: flex;
-    gap: 1rem;
-}
-
-.input-group input {
-    flex: 1;
-    padding: 0.75rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.2s;
-    box-sizing: border-box;
-}
-
-.input-group input:focus {
-    outline: none;
-    border-color: #5dade2;
-}
-
-.search-button {
-    background: #5dade2;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 0.75rem 2rem;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-}
-
-.search-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(93, 173, 226, 0.4);
-}
-
-.search-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
 .loading, .error, .no-reservations {
     text-align: center;
     padding: 3rem;
@@ -381,6 +261,29 @@ function getStatusText(status) {
     color: #e53e3e;
     background-color: #fff5f5;
     border-radius: 8px;
+}
+
+.no-reservations {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.link-button {
+    display: inline-block;
+    background: #5dade2;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.link-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(93, 173, 226, 0.4);
 }
 
 .result-count {
@@ -409,44 +312,8 @@ function getStatusText(status) {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.reservation-card.cancelled {
-    opacity: 0.7;
-    background-color: #f7fafc;
-}
-
-.status-badge {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    padding: 0.375rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 600;
-}
-
-.status-badge.confirmed {
-    background-color: #48bb78;
-    color: white;
-}
-
-.status-badge.pending {
-    background-color: #ed8936;
-    color: white;
-}
-
-.status-badge.cancelled {
-    background-color: #a0aec0;
-    color: white;
-}
-
-.status-badge.completed {
-    background-color: #4299e1;
-    color: white;
-}
-
 .reservation-header {
     margin-bottom: 1.5rem;
-    padding-right: 6rem;
 }
 
 .reservation-header h3 {
@@ -700,35 +567,6 @@ function getStatusText(status) {
     .title {
         font-size: 0.9rem;
         margin-bottom: 1rem;
-    }
-
-    .search-section {
-        padding: 1.5rem 1rem;
-    }
-
-    .input-group {
-        flex-direction: column;  /* 横並び → 縦並び */
-        gap: 0.75rem;
-    }
-
-    .input-group input {
-        width: 100%;
-    }
-
-    .search-button {
-        width: 100%;  /* ボタンを全幅に */
-        padding: 0.75rem;
-    }
-
-    .reservation-header {
-        padding-right: 0;
-        margin-bottom: 1rem;
-    }
-
-    .status-badge {
-        position: static;  /* 絶対配置を解除 */
-        display: inline-block;
-        margin-bottom: 0.5rem;
     }
 
     .reservation-header h3 {

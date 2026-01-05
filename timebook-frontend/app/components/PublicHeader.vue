@@ -16,7 +16,7 @@
                     <ClipboardDocumentListIcon class="nav-icon" />
                     <span>予約確認</span>
                 </NuxtLink>
-                <NuxtLink to="/login" class="nav-link login-link">
+                <NuxtLink to="/admin/login" class="nav-link login-link">
                     <LockClosedIcon class="nav-icon" />
                     <span>講師ログイン</span>
                 </NuxtLink>

@@ -8,7 +8,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
         // 認証トークンがない場合はログインページへリダイレクト
         if (!authToken) {
-            return navigateTo('/login')
+            return navigateTo('/admin/login')
         }
     }
 })

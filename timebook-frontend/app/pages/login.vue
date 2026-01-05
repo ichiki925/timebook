@@ -1,132 +1,149 @@
 <template>
-    <ClientOnly>
-        <div class="login-container">
-            <div class="login-card">
-                <div class="login-header">
-                    <h1>
-                        <MusicalNoteIcon class="title-icon" />
-                        TimeBook
-                    </h1>
-                    <p>管理画面ログイン</p>
+    <div class="container">
+        <div class="login-box">
+            <h1 class="title">ログイン</h1>
+            <p class="subtitle">会員専用ページへのログイン</p>
+
+            <!-- エラーメッセージ -->
+            <div v-if="errorMessage" class="error-message">
+                {{ errorMessage }}
+            </div>
+
+            <!-- ログインフォーム -->
+            <form @submit.prevent="handleLogin" class="login-form">
+                <!-- メールアドレス -->
+                <div class="form-group">
+                    <label for="email">メールアドレス</label>
+                    <input
+                        id="email"
+                        v-model="form.email"
+                        type="email"
+                        placeholder="example@email.com"
+                        required
+                        :disabled="loading"
+                    >
                 </div>
 
-                <form @submit.prevent="handleLogin" class="login-form">
-                    <div class="form-group">
-                        <label for="email">メールアドレス</label>
-                        <input
-                            id="email"
-                            v-model="email"
-                            type="email"
-                            required
-                            placeholder="test@example.com"
-                            class="form-input"
-                        />
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password">パスワード</label>
-                        <input
-                            id="password"
-                            v-model="password"
-                            type="password"
-                            required
-                            placeholder="パスワードを入力"
-                            class="form-input"
-                        />
-                    </div>
-
-                    <div v-if="errorMessage" class="error-message">
-                        {{ errorMessage }}
-                    </div>
-
-                    <button type="submit" class="login-button" :disabled="loading">
-                        {{ loading ? 'ログイン中...' : 'ログイン' }}
-                    </button>
-                </form>
-
-                <div class="login-footer">
-                    <NuxtLink to="/" class="back-link">← トップページに戻る</NuxtLink>
+                <!-- パスワード -->
+                <div class="form-group">
+                    <label for="password">パスワード</label>
+                    <input
+                        id="password"
+                        v-model="form.password"
+                        type="password"
+                        placeholder="パスワード"
+                        required
+                        :disabled="loading"
+                    >
                 </div>
+
+                <!-- ログインボタン -->
+                <button
+                    type="submit"
+                    class="login-button"
+                    :disabled="loading"
+                >
+                    {{ loading ? 'ログイン中...' : 'ログイン' }}
+                </button>
+            </form>
+
+            <!-- 会員登録リンク -->
+            <div class="register-link">
+                <p>アカウントをお持ちでない方</p>
+                <NuxtLink to="/register" class="link">新規会員登録</NuxtLink>
             </div>
         </div>
-    </ClientOnly>
+    </div>
 </template>
 
 <script setup lang="ts">
-import { MusicalNoteIcon } from '@heroicons/vue/24/outline'
-const email = ref('')
-const password = ref('')
-const errorMessage = ref('')
+import { ref, onMounted } from 'vue'
+import { useStudentAuth } from '~/composables/useStudentAuth'
+
+const { login, isAuthenticated } = useStudentAuth()
+
+const form = ref({
+    email: '',
+    password: '',
+})
+
 const loading = ref(false)
+const errorMessage = ref('')
 
-const { login } = useAuth()
-const router = useRouter()
-
-const handleLogin = async () => {
-    errorMessage.value = ''
-    loading.value = true
-
-    try {
-        const result = await login(email.value, password.value)
-
-        if (result.success) {
-            // ログイン成功 → 管理画面にリダイレクト
-            router.push('/admin/dashboard')
-        } else {
-            errorMessage.value = result.message || 'ログインに失敗しました'
-        }
-    } catch (error) {
-        errorMessage.value = 'ログインに失敗しました'
-    } finally {
-        loading.value = false
+// 既にログイン済みの場合はトップページにリダイレクト
+onMounted(() => {
+    if (isAuthenticated.value) {
+        navigateTo('/')
     }
+})
+
+// ログイン処理
+async function handleLogin() {
+    loading.value = true
+    errorMessage.value = ''
+
+    const result = await login(form.value.email, form.value.password)
+
+    if (result.success) {
+        // ログイン成功 - トップページにリダイレクト
+        await navigateTo('/')
+    } else {
+        // エラーメッセージを表示
+        if (result.errors?.general) {
+            errorMessage.value = result.errors.general[0]
+        } else {
+            errorMessage.value = 'ログインに失敗しました'
+        }
+    }
+
+    loading.value = false
 }
 </script>
 
 <style scoped>
-.login-container {
+.container {
     min-height: 100vh;
-    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #5dade2;
-    padding: 1rem;
+    padding: 2rem;
+    background: #faf8f3;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.login-card {
+.login-box {
     background: white;
     border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    padding: 2rem;
+    padding: 3rem;
     width: 100%;
-    max-width: 400px;
+    max-width: 450px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
-.login-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.login-header h1 {
+.title {
     font-size: 2rem;
-    color: #5dade2;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 0.5rem 0;
+    text-align: center;
 }
 
-.title-icon {
-    width: 2rem;
-    height: 2rem;
-    color: #5dade2;
-}
-
-.login-header p {
-    color: #666;
+.subtitle {
     font-size: 1rem;
+    color: #718096;
+    margin: 0 0 2rem 0;
+    text-align: center;
+}
+
+.error-message {
+    background-color: #fff5f5;
+    border: 2px solid #feb2b2;
+    color: #c53030;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    text-align: center;
 }
 
 .login-form {
@@ -143,44 +160,46 @@ const handleLogin = async () => {
 
 .form-group label {
     font-weight: 600;
-    color: #333;
+    color: #4a5568;
+    font-size: 0.95rem;
 }
 
-.form-input {
-    padding: 0.75rem;
-    border: 2px solid #e0e0e0;
+.form-group input {
+    padding: 0.875rem;
+    border: 2px solid #e2e8f0;
     border-radius: 8px;
     font-size: 1rem;
-    transition: border-color 0.3s;
+    transition: all 0.2s;
 }
 
-.form-input:focus {
+.form-group input:focus {
     outline: none;
-    border-color: #5dade2;
+    border-color: #f7fafc;
+    box-shadow: 0 0 0 3px rgba(93, 173, 226, 0.3);
 }
 
-.error-message {
-    background: #fee;
-    color: #c33;
-    padding: 0.75rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
+.form-group input:disabled {
+    background-color: #f7fafc;
+    cursor: not-allowed;
 }
 
 .login-button {
     background: #5dade2;
     color: white;
-    padding: 1rem;
     border: none;
     border-radius: 8px;
+    padding: 1rem;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: all 0.2s;
+    margin-top: 0.5rem;
 }
 
 .login-button:hover:not(:disabled) {
+    background: #4a9fd1;
     transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(93, 173, 226, 0.3);
 }
 
 .login-button:disabled {
@@ -188,57 +207,56 @@ const handleLogin = async () => {
     cursor: not-allowed;
 }
 
-.login-footer {
-    margin-top: 1.5rem;
+.register-link {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e2e8f0;
     text-align: center;
 }
 
-.back-link {
-    color: #5dade2;
-    text-decoration: none;
-    font-size: 0.9rem;
+.register-link p {
+    color: #718096;
+    margin: 0 0 0.75rem 0;
+    font-size: 0.95rem;
 }
 
-.back-link:hover {
+.register-link .link {
+    color: #5dade2;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+
+.register-link .link:hover {
+    color: #4a9fd1;
     text-decoration: underline;
 }
 
-@media (max-width: 768px) {
-    .login-container {
-        background: white;
-        padding: 2rem 0 0 0;
+/* スマホ対応 */
+@media (max-width: 640px) {
+    .container {
+        padding: 0;
+        background: white;  /* スマホでは白背景 */
         min-height: 100vh;
-        height: auto;
         display: block;
     }
 
-    .login-card {
-        box-shadow: none;
-        border-radius: 0;
-        padding: 1.5rem 1.5rem;
+    .login-box {
+        padding: 1.5rem 1.5rem 2rem 1.5rem;  /* 上の余白を削減 */
+        box-shadow: none;  /* カード形式をやめる */
+        border-radius: 0;  /* 角丸をなくす */
         max-width: 100%;
     }
 
-    .login-header {
+    .title {
+        font-size: 1.5rem;
         margin-bottom: 1.5rem;
     }
 
-
-    .login-header h1 {
-        color: #5dade2;
-    }
-
-    .login-header p {
+    .subtitle {
         font-size: 0.9rem;
+        margin-bottom: 1.5rem;
     }
-
-    .login-form {
-        gap: 1.25rem;
-    }
-
-    .login-button {
-        margin-top: 2rem;
-    }
-
 }
 </style>
