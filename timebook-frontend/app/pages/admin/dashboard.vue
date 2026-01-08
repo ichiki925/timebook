@@ -86,6 +86,7 @@
 </template>
 
 <script setup lang="ts">
+const config = useRuntimeConfig()
 import {
     CalendarDaysIcon,
     CheckBadgeIcon,
@@ -124,13 +125,13 @@ const loadDashboardData = async () => {
         }
 
         // 統計情報を取得
-        const statsResponse = await fetchWithAuth('http://localhost/api/dashboard/stats')
+        const statsResponse = await fetchWithAuth(`${config.public.apiBaseUrl}/dashboard/stats`)
         if (statsResponse.success) {
             stats.value = statsResponse.data
         }
 
         // 今日の予約を取得
-        const todayResponse = await fetchWithAuth('http://localhost/api/dashboard/today-reservations')
+        const todayResponse = await fetchWithAuth(`${config.public.apiBaseUrl}/dashboard/today-reservations`)
         if (todayResponse.success) {
             todayReservations.value = todayResponse.data.reservations
             todayCount.value = todayResponse.data.count

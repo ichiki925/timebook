@@ -100,6 +100,7 @@
 </template>
 
 <script setup lang="ts">
+const config = useRuntimeConfig()
 import {
     ClipboardDocumentListIcon,
     MagnifyingGlassIcon
@@ -154,7 +155,7 @@ const fetchReservations = async () => {
             params.append('status', filters.value.status)
         }
 
-        const url = `http://localhost/api/reservations?${params.toString()}`
+        const url = `${config.public.apiBaseUrl}/reservations?${params.toString()}`
         const data = await fetchWithAuth(url)
         reservations.value = data.data || []
     } catch (error) {
@@ -172,7 +173,7 @@ const cancelReservation = async (id: number) => {
     }
 
     try {
-        await fetchWithAuth(`http://localhost/api/reservations/${id}`, {
+        await fetchWithAuth(`${config.public.apiBaseUrl}/reservations/${id}`, {
             method: 'PUT',
             body: JSON.stringify({
                 status: 'cancelled'
@@ -194,7 +195,7 @@ const restoreReservation = async (id: number) => {
     }
 
     try {
-        await fetchWithAuth(`http://localhost/api/reservations/${id}`, {
+        await fetchWithAuth(`${config.public.apiBaseUrl}/reservations/${id}`, {
             method: 'PUT',
             body: JSON.stringify({
                 status: 'confirmed'

@@ -227,9 +227,6 @@ const weekDates = computed(() => {
 
 // スマホ用：5日分だけ表示
 const displayDates = computed(() => {
-    if (isMobile.value) {
-        return weekDates.value.slice(0, 5)
-    }
     return weekDates.value
 })
 
@@ -237,7 +234,7 @@ const displayDates = computed(() => {
 // 前の週に移動
 function previousWeek() {
     const newDate = new Date(currentWeekStart.value)
-    const days = isMobile.value ? 5 : 7
+    const days = 7
     newDate.setDate(newDate.getDate() - days)
     currentWeekStart.value = newDate
 }
@@ -245,7 +242,7 @@ function previousWeek() {
 // 次の週に移動
 function nextWeek() {
     const newDate = new Date(currentWeekStart.value)
-    const days = isMobile.value ? 5 : 7
+    const days = 7
     newDate.setDate(newDate.getDate() + days)
     currentWeekStart.value = newDate
 }
@@ -477,7 +474,7 @@ async function submitReservation() {
 async function fetchSlots() {
     try {
         loading.value = true
-        const response = await fetch(`${apiBaseUrl}/reservations/available-slots?teacher_id=1`)
+        const response = await fetch(`${apiBaseUrl}/reservations/available-slots?teacher_id=2`)
         const data = await response.json()
         // 各slotにreservingフラグを追加
         slots.value = data.data.map(slot => ({

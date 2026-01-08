@@ -312,6 +312,7 @@
 </template>
 
 <script setup lang="ts">
+const config = useRuntimeConfig()
 import {
     PlusIcon,
     CalendarDaysIcon,
@@ -411,7 +412,7 @@ const loadSlots = async () => {
         endDate.setDate(endDate.getDate() + 30)
 
         const response = await fetchWithAuth(
-            `http://localhost/api/lesson-slots?start_date=${formatDateForApi(startDate)}&end_date=${formatDateForApi(endDate)}`
+            `${config.public.apiBaseUrl}/lesson-slots?start_date=${formatDateForApi(startDate)}&end_date=${formatDateForApi(endDate)}`
         )
 
         if (response.success) {
@@ -441,7 +442,7 @@ const createSlot = async () => {
         submitting.value = true
         errorMessage.value = ''
 
-        const response = await fetchWithAuth('http://localhost/api/lesson-slots', {
+        const response = await fetchWithAuth(`${config.public.apiBaseUrl}/lesson-slots`, {
             method: 'POST',
             body: JSON.stringify({
                 date: createForm.value.date,
@@ -486,7 +487,7 @@ const updateSlot = async () => {
         submitting.value = true
         errorMessage.value = ''
 
-        const response = await fetchWithAuth(`http://localhost/api/lesson-slots/${editingSlot.value.id}`, {
+        const response = await fetchWithAuth(`${config.public.apiBaseUrl}/lesson-slots/${editingSlot.value.id}`, {
             method: 'PUT',
             body: JSON.stringify(editForm.value)
         })
@@ -523,7 +524,7 @@ const deleteSlot = async (id: number) => {
     try {
         errorMessage.value = ''
 
-        const response = await fetchWithAuth(`http://localhost/api/lesson-slots/${id}`, {
+        const response = await fetchWithAuth(`${config.public.apiBaseUrl}/lesson-slots/${id}`, {
             method: 'DELETE'
         })
 
@@ -624,7 +625,7 @@ const bulkCreateSlots = async () => {
 
         for (const date of targetDates) {
             try {
-                const response = await fetchWithAuth('http://localhost/api/lesson-slots/bulk', {
+                const response = await fetchWithAuth(`${config.public.apiBaseUrl}/lesson-slots/bulk`, {
                     method: 'POST',
                     body: JSON.stringify({
                         date: date,

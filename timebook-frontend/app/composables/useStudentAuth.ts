@@ -1,4 +1,5 @@
 export const useStudentAuth = () => {
+    const config = useRuntimeConfig()
     // 生徒会員の認証状態をグローバルに管理
     const user = useState<any>('student', () => null)
     const token = useState<string | null>('studentToken', () => null)
@@ -23,7 +24,7 @@ export const useStudentAuth = () => {
      */
     const register = async (name: string, email: string, password: string, passwordConfirmation: string) => {
         try {
-            const response = await fetch('http://localhost/api/student/register', {
+            const response = await fetch(`${config.public.apiBaseUrl}/student/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -58,7 +59,7 @@ export const useStudentAuth = () => {
      */
     const login = async (email: string, password: string) => {
         try {
-            const response = await fetch('http://localhost/api/student/login', {
+            const response = await fetch(`${config.public.apiBaseUrl}/student/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -101,7 +102,7 @@ export const useStudentAuth = () => {
         try {
             // サーバー側のトークンを削除
             if (token.value) {
-                await fetch('http://localhost/api/student/logout', {
+                await fetch(`${config.public.apiBaseUrl}/student/logout`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -133,7 +134,7 @@ export const useStudentAuth = () => {
         if (!token.value) return false
 
         try {
-            const response = await fetch('http://localhost/api/student/user', {
+            const response = await fetch(`${config.public.apiBaseUrl}/student/user`, {
                 headers: {
                     Authorization: `Bearer ${token.value}`,
                 },

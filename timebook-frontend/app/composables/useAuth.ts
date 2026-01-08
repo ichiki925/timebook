@@ -1,11 +1,12 @@
 export const useAuth = () => {
+    const config = useRuntimeConfig()
     const teacher = useState<any>('teacher', () => null)
     const token = useState<string | null>('token', () => null)
 
     // ログイン処理
     const login = async (email: string, password: string) => {
         try {
-            const response = await fetch('http://localhost/api/login', {
+            const response = await fetch(`${config.public.apiBaseUrl}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -39,7 +40,7 @@ export const useAuth = () => {
     const logout = async () => {
         try {
             if (token.value) {
-                await fetch('http://localhost/api/logout', {
+                await fetch(`${config.public.apiBaseUrl}/logout`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

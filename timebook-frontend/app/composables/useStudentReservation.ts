@@ -1,6 +1,7 @@
 import { useStudentAuth } from './useStudentAuth'
 
 export const useStudentReservation = () => {
+    const config = useRuntimeConfig()
     const { token } = useStudentAuth()
     const loading = ref(false)
     const error = ref<string | null>(null)
@@ -13,7 +14,7 @@ export const useStudentReservation = () => {
         error.value = null
 
         try {
-            const response = await fetch('http://localhost/api/student/reservations', {
+            const response = await fetch(`${config.public.apiBaseUrl}/student/reservations`, {
                 headers: {
                 Authorization: `Bearer ${token.value}`,
                 },
@@ -43,7 +44,7 @@ export const useStudentReservation = () => {
         error.value = null
 
         try {
-            const response = await fetch('http://localhost/api/student/reservations', {
+            const response = await fetch(`${config.public.apiBaseUrl}/student/reservations`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -80,7 +81,7 @@ export const useStudentReservation = () => {
 
         try {
             const response = await fetch(
-                `http://localhost/api/student/reservations/${reservationId}`,
+                `${config.public.apiBaseUrl}/student/reservations/${reservationId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token.value}`,
@@ -113,7 +114,7 @@ export const useStudentReservation = () => {
 
         try {
             const response = await fetch(
-                `http://localhost/api/student/reservations/${reservationId}`,
+                `${config.public.apiBaseUrl}/student/reservations/${reservationId}`,
                 {
                     method: 'DELETE',
                     headers: {
