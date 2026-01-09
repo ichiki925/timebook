@@ -435,12 +435,21 @@ function openModal(slot) {
     selectedSlot.value = slot
     showModal.value = true
 
-    // フォームをリセット
-    formData.value = {
-        name: '',
-        email: '',
-        phone: '',
-        notes: ''
+    // ログイン済みなら自動入力、未ログインなら空欄
+    if (user.value) {
+        formData.value = {
+            name: user.value.name,
+            email: user.value.email,
+            phone: '',
+            notes: ''
+        }
+    } else {
+        formData.value = {
+            name: '',
+            email: '',
+            phone: '',
+            notes: ''
+        }
     }
 }
 
