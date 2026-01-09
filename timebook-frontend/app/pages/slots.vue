@@ -201,7 +201,11 @@ function checkScreenSize() {
 }
 
 onMounted(() => {
+    console.log('🔍 onMounted 開始')
+    console.log('📍 process.client:', process.client)
+    console.log('📍 localStorage.studentUser:', localStorage.getItem('studentUser'))
     initialize()
+    console.log('✅ initialize 実行後 user.value:', user.value)
     checkAuth()
     checkScreenSize()
     window.addEventListener('resize', checkScreenSize)
@@ -209,10 +213,14 @@ onMounted(() => {
 
 // 自動ログインチェック
 function checkAuth() {
+    console.log('🔍 checkAuth 開始 user.value:', user.value)
     if (user.value) {
+        console.log('✅ ログイン済み、自動入力します')
         // ログイン済みなら名前・メールを自動入力
         formData.value.name = user.value.name
         formData.value.email = user.value.email
+    } else {
+        console.log('❌ 未ログイン')
     }
 }
 
