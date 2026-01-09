@@ -169,12 +169,20 @@
         <div v-if="reservationError" class="error-message">
             {{ reservationError }}
         </div>
+
+        <!-- ログアウトボタン -->
+        <div v-if="user" class="logout-container">
+            <button @click="handleLogout" class="logout-button">
+                ログアウト
+            </button>
+        </div>
     </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted  } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
+const { user, initialize, logout } = useStudentAuth()
 const config = useRuntimeConfig()
 const apiBaseUrl = config.public.apiBaseUrl
 const slots = ref([])
@@ -193,9 +201,32 @@ function checkScreenSize() {
 }
 
 onMounted(() => {
+    initialize()
+    checkAuth()
     checkScreenSize()
     window.addEventListener('resize', checkScreenSize)
 })
+
+// 自動ログインチェック
+function checkAuth() {
+    if (user.value) {
+        // ログイン済みなら名前・メールを自動入力
+        formData.value.name = user.value.name
+        formData.value.email = user.value.email
+    }
+}
+
+// ログアウト
+async function handleLogout() {
+    await logout()
+    // ログアウト後、フォームをリセット
+    formData.value = {
+        name: '',
+        email: '',
+        phone: '',
+        notes: ''
+    }
+}
 
 onUnmounted(() => {
     if (process.client) {
@@ -787,6 +818,29 @@ fetchSlots()
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+/* ログアウトボタン */
+.logout-container {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem;
+}
+
+.logout-button {
+    background-color: #e2e8f0;
+    color: #4a5568;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.logout-button:hover {
+    background-color: #cbd5e0;
+}
+
 
 .success-message {
     position: fixed;

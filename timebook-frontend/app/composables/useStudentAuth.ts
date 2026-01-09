@@ -40,6 +40,14 @@ export const useStudentAuth = () => {
             const data = await response.json()
 
             if (response.ok) {
+                // トークンとユーザー情報を保存
+                token.value = data.token
+                user.value = data.user
+                // localStorageに保存
+                if (process.client) {
+                    localStorage.setItem('studentAuthToken', data.token)
+                    localStorage.setItem('studentUser', JSON.stringify(data.user))
+                }
                 return { success: true, message: data.message }
             } else {
                 // バリデーションエラーの処理
