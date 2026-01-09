@@ -43,9 +43,11 @@ class StudentReservationController extends Controller
             // 予約作成（会員情報を自動入力）
             $reservation = Reservation::create([
                 'lesson_slot_id' => $lessonSlot->id,
-                'user_id' => $user->id,  // 会員ID
-                'student_name' => $user->name,  // 会員名を自動入力
-                'student_email' => $user->email,  // 会員メールを自動入力
+                'user_id' => $user->id,
+                'student_name' => $user->name,
+                'student_email' => $user->email,
+                'student_phone' => $request->input('student_phone'),
+                'course_type' => $request->input('course_type'),
                 'notes' => $request->input('notes'),  // 備考（任意）
             ]);
 
