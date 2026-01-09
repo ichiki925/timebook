@@ -465,10 +465,19 @@ async function submitReservation() {
     submitting.value = true
 
     try {
-        const response = await fetch(`${apiBaseUrl}/reservations/`, {
+        // トークンを取得
+        const token = process.client ? localStorage.getItem('studentAuthToken') : null
+
+        if (!token) {
+            reservationError.value = 'ログインが必要です'
+            submitting.value = false
+            return
+        }
+        const response = await fetch(`${apiBaseUrl}/student/reservations`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 lesson_slot_id: selectedSlot.value.id,
