@@ -32,7 +32,7 @@ class StudentReservationController extends Controller
         $lessonSlot = LessonSlot::findOrFail($validated['lesson_slot_id']);
 
         // レッスン枠が既に予約済みでないか確認
-        if ($lessonSlot->is_reserved) {
+        if (!$lessonSlot->is_available) {
             return response()->json([
                 'message' => 'このレッスン枠は既に予約されています'
             ], 422);
@@ -52,7 +52,7 @@ class StudentReservationController extends Controller
             ]);
 
             // レッスン枠を予約済みにする
-            $lessonSlot->is_reserved = true;
+            $lessonSlot->is_available = false;
             $lessonSlot->save();
 
             // 確認メールを送信
@@ -165,7 +165,7 @@ class StudentReservationController extends Controller
         try {
             // レッスン枠の予約状態を解除
             $lessonSlot = $reservation->lessonSlot;
-            $lessonSlot->is_reserved = false;
+            $lessonSlot->is_available = true;
             $lessonSlot->save();
 
             // 予約を削除
