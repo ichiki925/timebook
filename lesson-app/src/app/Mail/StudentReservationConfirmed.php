@@ -39,7 +39,7 @@ class StudentReservationConfirmed extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.student-reservation-confirmed',
+            view: 'emails.student_reservation_confirmed',
         );
     }
 

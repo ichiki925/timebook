@@ -56,7 +56,7 @@ class StudentReservationController extends Controller
             $lessonSlot->save();
 
             // 確認メールを送信
-            Mail::to($user->email)->send(new StudentReservationConfirmed($reservation, $lessonSlot));
+            Mail::to($user->email)->send(new StudentReservationConfirmed($reservation));
 
             DB::commit();
 
