@@ -12,7 +12,7 @@
             padding: 20px;
         }
         .header {
-            background-color: #4F46E5;
+            background-color: #54c7f9ff;
             color: white;
             padding: 20px;
             text-align: center;
@@ -28,7 +28,7 @@
             padding: 20px;
             border-radius: 6px;
             margin: 20px 0;
-            border-left: 4px solid #4F46E5;
+            border-left: 4px solid #54c7f9ff;
         }
         .info-row {
             display: flex;
