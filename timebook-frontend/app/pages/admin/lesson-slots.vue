@@ -406,10 +406,10 @@ const loadSlots = async () => {
         loading.value = true
         error.value = ''
 
-        // 今日から30日後までの枠を取得
+        // 今日から60日後までの枠を取得
         const startDate = new Date()
         const endDate = new Date()
-        endDate.setDate(endDate.getDate() + 30)
+        endDate.setDate(endDate.getDate() + 60)
 
         const response = await fetchWithAuth(
             `${config.public.apiBaseUrl}/lesson-slots?start_date=${formatDateForApi(startDate)}&end_date=${formatDateForApi(endDate)}`
